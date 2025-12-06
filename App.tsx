@@ -658,11 +658,9 @@ const MenuForm: FC<{ onSave: (data: MenuFormData) => void, onCancel: () => void,
 
 // --- PAGE COMPONENTS ---
 const DashboardPage: FC<{ user: User, onNav: (page: Page) => void, proposals: Proposal[], menus: Menu[] }> = ({ user, onNav, proposals, menus }) => {
-    const [animated, setAnimated] = useState(false);
     const [filterKategori, setFilterKategori] = useState('Semua');
     const [filterBentuk, setFilterBentuk] = useState('Semua');
     const [filterRegion, setFilterRegion] = useState('Semua');
-    const [activeFilter, setActiveFilter] = useState<string | null>(null);
 
     const pendingProposalsCount = proposals.filter(p => p.status === 'Pending').length;
     const rmProposalsCount = proposals.filter(p => p.proposer.id === user.id && p.status === 'Pending').length;
@@ -676,581 +674,259 @@ const DashboardPage: FC<{ user: User, onNav: (page: Page) => void, proposals: Pr
         });
     }, [menus, filterKategori, filterBentuk, filterRegion]);
     const totalMenus = filteredMenusGM.length;
-    
-    useEffect(() => {
-        const timer = setTimeout(() => setAnimated(true), 100);
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Close filter when clicking outside
-    useEffect(() => {
-        const handleClickOutside = () => setActiveFilter(null);
-        if (activeFilter) {
-            document.addEventListener('click', handleClickOutside);
-            return () => document.removeEventListener('click', handleClickOutside);
-        }
-    }, [activeFilter]);
-
-    // Filter options with icons
-    const filterConfigs = [
-        {
-            id: 'kategori',
-            label: 'Kategori',
-            icon: '🍽️',
-            value: filterKategori,
-            setValue: setFilterKategori,
-            options: [
-                { value: 'Semua', label: 'Semua Kategori', icon: '📋' },
-                { value: 'Makanan', label: 'Makanan', icon: '🍜' },
-                { value: 'Minuman', label: 'Minuman', icon: '🥤' },
-                { value: 'Dessert', label: 'Dessert', icon: '🍰' },
-                { value: 'Snack', label: 'Snack', icon: '🍿' },
-            ],
-            gradient: 'from-orange-500 to-red-500',
-            bgGradient: 'from-orange-50 to-red-50',
-        },
-        {
-            id: 'bentuk',
-            label: 'Bentuk Outlet',
-            icon: '🏪',
-            value: filterBentuk,
-            setValue: setFilterBentuk,
-            options: [
-                { value: 'Semua', label: 'Semua Bentuk', icon: '🏢' },
-                { value: 'Dine-in', label: 'Dine-in', icon: '🪑' },
-                { value: 'Coffee Shop', label: 'Coffee Shop', icon: '☕' },
-                { value: 'Express', label: 'Express', icon: '⚡' },
-                { value: 'Snack Stall', label: 'Snack Stall', icon: '🍿' },
-                { value: 'Drink Stall', label: 'Drink Stall', icon: '🥤' },
-            ],
-            gradient: 'from-blue-500 to-cyan-500',
-            bgGradient: 'from-blue-50 to-cyan-50',
-        },
-        {
-            id: 'region',
-            label: 'Region',
-            icon: '📍',
-            value: filterRegion,
-            setValue: setFilterRegion,
-            options: [
-                { value: 'Semua', label: 'Semua Region', icon: '🌏' },
-                { value: 'Jakarta Selatan', label: 'Jakarta Selatan', icon: '🏙️' },
-                { value: 'Jakarta Pusat', label: 'Jakarta Pusat', icon: '🏛️' },
-                { value: 'Jakarta Utara', label: 'Jakarta Utara', icon: '⚓' },
-                { value: 'Jakarta Barat', label: 'Jakarta Barat', icon: '🌆' },
-                { value: 'Jakarta Timur', label: 'Jakarta Timur', icon: '🌅' },
-                { value: 'Bandung', label: 'Bandung', icon: '🌄' },
-                { value: 'Surabaya', label: 'Surabaya', icon: '🦈' },
-            ],
-            gradient: 'from-purple-500 to-pink-500',
-            bgGradient: 'from-purple-50 to-pink-50',
-        },
-    ];
 
     const hasActiveFilters = filterKategori !== 'Semua' || filterBentuk !== 'Semua' || filterRegion !== 'Semua';
-    const activeFiltersCount = [filterKategori, filterBentuk, filterRegion].filter(f => f !== 'Semua').length;
 
-    const FilterCard: FC<{
-        config: typeof filterConfigs[0];
-    }> = ({ config }) => {
-        const isOpen = activeFilter === config.id;
-        const isActive = config.value !== 'Semua';
-        const selectedOption = config.options.find(o => o.value === config.value);
-        
-        return (
-            <div className="relative flex-1 min-w-[180px]" onClick={(e) => e.stopPropagation()}>
-                <button 
-                    onClick={() => setActiveFilter(isOpen ? null : config.id)}
-                    className={`w-full group relative overflow-hidden rounded-2xl border-2 transition-all duration-300 ${
-                        isOpen 
-                            ? 'border-purple-400 shadow-lg shadow-purple-500/20' 
-                            : isActive 
-                                ? 'border-purple-200 bg-gradient-to-br ' + config.bgGradient
-                                : 'border-slate-200 hover:border-purple-300 bg-white hover:shadow-md'
-                    }`}
-                >
-                    {/* Animated background on hover */}
-                    <div className={`absolute inset-0 bg-gradient-to-r ${config.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
-                    
-                    <div className="relative p-4">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${config.gradient} flex items-center justify-center text-lg shadow-lg`}>
-                                    {selectedOption?.icon || config.icon}
-                                </div>
-                                <div className="text-left">
-                                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">{config.label}</p>
-                                    <p className={`font-semibold ${isActive ? 'text-purple-600' : 'text-slate-800'}`}>
-                                        {selectedOption?.label || config.value}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                                isOpen ? 'bg-purple-100 rotate-180' : 'bg-slate-100 group-hover:bg-purple-50'
-                            }`}>
-                                <svg className="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                </button>
-                
-                {/* Dropdown */}
-                {isOpen && (
-                    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden z-[100] animate-in fade-in slide-in-from-top-2 duration-200">
-                        <div className="p-2 max-h-72 overflow-y-auto">
-                            {config.options.map((opt, idx) => (
-                                <button
-                                    key={opt.value}
-                                    onClick={() => { config.setValue(opt.value); setActiveFilter(null); }}
-                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-                                        config.value === opt.value 
-                                            ? `bg-gradient-to-r ${config.gradient} text-white shadow-lg` 
-                                            : 'hover:bg-slate-50 text-slate-700'
-                                    }`}
-                                    style={{
-                                        animationDelay: `${idx * 30}ms`
-                                    }}
-                                >
-                                    <span className={`text-lg ${config.value === opt.value ? 'animate-bounce' : ''}`}>
-                                        {opt.icon}
-                                    </span>
-                                    <span className="font-medium">{opt.label}</span>
-                                    {config.value === opt.value && (
-                                        <span className="ml-auto">✓</span>
-                                    )}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
-    // Mini sparkline data
-    const sparklineData = [30, 45, 35, 50, 40, 60, 55, 70, 65, 80, 75, 90];
-    
-    const StatCardEnhanced: FC<{ 
+    // Minimalist Stat Card
+    const StatCard: FC<{ 
         title: string; 
         value: string; 
         change?: string; 
-        changeType?: 'increase' | 'decrease';
-        icon: React.ReactElement;
-        gradient: string;
-        delay: number;
-    }> = ({ title, value, change, changeType, icon, gradient, delay }) => (
-        <div 
-            className={`relative overflow-hidden bg-white rounded-2xl p-6 shadow-sm border border-slate-100 hover:shadow-xl hover:border-slate-200 transition-all duration-500 group`}
-            style={{
-                opacity: animated ? 1 : 0,
-                transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                transition: `all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) ${delay}s`
-            }}
-        >
-            {/* Background gradient decoration */}
-            <div className={`absolute -right-4 -top-4 w-24 h-24 rounded-full ${gradient} opacity-10 group-hover:opacity-20 group-hover:scale-125 transition-all duration-500`}></div>
-            
-            <div className="relative flex items-start justify-between">
-                <div>
-                    <p className="text-sm font-medium text-slate-500 mb-1">{title}</p>
-                    <p className="text-3xl font-bold text-slate-800">{value}</p>
-                    {change && (
-                        <div className={`mt-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold ${changeType === 'increase' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
-                            <span className="text-base">{changeType === 'increase' ? '↑' : '↓'}</span>
-                            {change}
-                        </div>
-                    )}
-                </div>
-                <div className={`w-12 h-12 rounded-xl ${gradient} flex items-center justify-center text-white shadow-lg`}>
-                    {icon}
-                </div>
+        changeType?: 'up' | 'down';
+        icon: string;
+    }> = ({ title, value, change, changeType, icon }) => (
+        <div className="bg-white rounded-lg p-5 border border-slate-200 hover:border-purple-300 hover:shadow-sm transition-all">
+            <div className="flex items-start justify-between mb-3">
+                <span className="text-2xl">{icon}</span>
+                {change && (
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded ${changeType === 'up' ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-600'}`}>
+                        {changeType === 'up' ? '↑' : '↓'} {change}
+                    </span>
+                )}
             </div>
+            <p className="text-slate-500 text-sm mb-1">{title}</p>
+            <p className="text-2xl font-bold text-slate-900">{value}</p>
         </div>
     );
 
-    // Mini chart component
-    const MiniSparkline: FC<{ data: number[], color: string }> = ({ data, color }) => {
-        const max = Math.max(...data);
-        const points = data.map((d, i) => `${(i / (data.length - 1)) * 100},${100 - (d / max) * 80}`).join(' ');
-        return (
-            <svg viewBox="0 0 100 100" className="w-full h-12" preserveAspectRatio="none">
-                <defs>
-                    <linearGradient id={`spark-${color}`} x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-                        <stop offset="100%" stopColor={color} stopOpacity="0" />
-                    </linearGradient>
-                </defs>
-                <polygon fill={`url(#spark-${color})`} points={`0,100 ${points} 100,100`} />
-                <polyline fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" points={points} />
-            </svg>
-        );
-    };
+    // Minimalist Filter Select
+    const FilterSelect: FC<{
+        label: string;
+        value: string;
+        options: string[];
+        onChange: (value: string) => void;
+    }> = ({ label, value, options, onChange }) => (
+        <div className="flex-1 min-w-[150px]">
+            <label className="block text-xs font-medium text-slate-500 mb-1.5">{label}</label>
+            <select 
+                value={value} 
+                onChange={(e) => onChange(e.target.value)}
+                className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 transition-colors"
+            >
+                {options.map(opt => (
+                    <option key={opt} value={opt}>{opt}</option>
+                ))}
+            </select>
+        </div>
+    );
     
     return (
-      <div className="p-6 lg:p-8 space-y-8">
-        {/* Welcome Banner */}
-        <div 
-            className="relative overflow-hidden bg-gradient-to-r from-purple-600 via-blue-600 to-indigo-600 rounded-3xl p-8 text-white"
-            style={{
-                opacity: animated ? 1 : 0,
-                transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
-            }}
-        >
-            {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-2xl translate-y-1/2 -translate-x-1/4"></div>
-            <div className="absolute top-1/2 right-1/4 w-4 h-4 bg-white/30 rounded-full animate-pulse"></div>
-            <div className="absolute top-1/3 right-1/3 w-2 h-2 bg-white/40 rounded-full animate-pulse" style={{animationDelay: '0.5s'}}></div>
-            
-            <div className="relative flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+      <div className="p-4 lg:p-6 space-y-6 max-w-7xl mx-auto">
+        {/* Minimalist Header */}
+        <div className="bg-white rounded-lg p-6 border border-slate-200">
+            <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-purple-200 text-sm font-medium mb-2">
-                        {new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    <p className="text-slate-500 text-sm mb-1">
+                        {new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </p>
-                    <h2 className="text-3xl lg:text-4xl font-bold mb-2">
-                        Selamat datang, {user.name.split(' ')[0]}! 👋
+                    <h2 className="text-2xl font-bold text-slate-900">
+                        {user.role === 'GM' ? 'Dashboard General Manager' : `Dashboard ${user.region}`}
                     </h2>
-                    <p className="text-purple-100 text-lg">
-                        {user.role === 'GM' 
-                            ? 'Pantau performa bisnis nasional Anda' 
-                            : `Kelola region ${user.region} dengan mudah`}
-                    </p>
+                    <p className="text-slate-600 mt-1">{user.name} • {user.role}</p>
                 </div>
-                <div className="flex gap-3">
-                    <button 
-                        onClick={() => onNav('Analytics')} 
-                        className="px-6 py-3 bg-white/20 backdrop-blur-sm rounded-xl font-medium hover:bg-white/30 transition-all flex items-center gap-2"
-                    >
-                        <AnalyticsIcon />
-                        Lihat Analytics
-                    </button>
-                </div>
+                <button 
+                    onClick={() => onNav('Analytics')} 
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-sm font-medium"
+                >
+                    Analytics
+                </button>
             </div>
         </div>
 
-        {/* Filter Section - GM Only */}
+        {/* Filters - GM Only */}
         {user.role === 'GM' && (
-            <div 
-                className="relative z-30"
-                style={{
-                    opacity: animated ? 1 : 0,
-                    transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                    transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s'
-                }}
-            >
-                {/* Filter Header */}
-                <div className="bg-gradient-to-r from-slate-800 to-slate-900 rounded-t-2xl px-6 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center">
-                                <span className="text-lg">🔍</span>
-                            </div>
-                            <div>
-                                <h4 className="font-semibold text-white">Filter Dashboard</h4>
-                                <p className="text-slate-400 text-sm">Sesuaikan tampilan data</p>
-                            </div>
-                        </div>
-                        {hasActiveFilters && (
-                            <div className="flex items-center gap-3">
-                                <span className="px-3 py-1 bg-purple-500/20 text-purple-300 text-sm font-medium rounded-full">
-                                    {activeFiltersCount} filter aktif
-                                </span>
-                                <button
-                                    onClick={() => {
-                                        setFilterKategori('Semua');
-                                        setFilterBentuk('Semua');
-                                        setFilterRegion('Semua');
-                                    }}
-                                    className="px-4 py-2 text-sm font-medium text-white bg-red-500/20 hover:bg-red-500/30 rounded-xl transition-colors flex items-center gap-2"
-                                >
-                                    <span>✕</span> Reset Semua
-                                </button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-                
-                {/* Filter Cards */}
-                <div className="bg-white rounded-b-2xl shadow-lg border border-slate-100 border-t-0 p-6">
-                    <div className="flex flex-col lg:flex-row gap-4">
-                        {filterConfigs.map((config) => (
-                            <FilterCard key={config.id} config={config} />
-                        ))}
-                    </div>
-                    
-                    {/* Active Filters Tags */}
+            <div className="bg-white rounded-lg p-5 border border-slate-200">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-slate-900">Filter Data</h3>
                     {hasActiveFilters && (
-                        <div className="mt-4 pt-4 border-t border-slate-100">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm text-slate-500">Filter aktif:</span>
-                                {filterKategori !== 'Semua' && (
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-orange-100 to-red-100 text-orange-700 text-sm font-medium rounded-full">
-                                        🍽️ {filterKategori}
-                                        <button onClick={() => setFilterKategori('Semua')} className="hover:text-red-600 ml-1">×</button>
-                                    </span>
-                                )}
-                                {filterBentuk !== 'Semua' && (
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-700 text-sm font-medium rounded-full">
-                                        🏪 {filterBentuk}
-                                        <button onClick={() => setFilterBentuk('Semua')} className="hover:text-red-600 ml-1">×</button>
-                                    </span>
-                                )}
-                                {filterRegion !== 'Semua' && (
-                                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-purple-100 to-pink-100 text-purple-700 text-sm font-medium rounded-full">
-                                        📍 {filterRegion}
-                                        <button onClick={() => setFilterRegion('Semua')} className="hover:text-red-600 ml-1">×</button>
-                                    </span>
-                                )}
-                            </div>
-                        </div>
+                        <button
+                            onClick={() => {
+                                setFilterKategori('Semua');
+                                setFilterBentuk('Semua');
+                                setFilterRegion('Semua');
+                            }}
+                            className="text-xs text-red-600 hover:text-red-700 font-medium"
+                        >
+                            Reset Filter
+                        </button>
                     )}
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <FilterSelect
+                        label="Kategori"
+                        value={filterKategori}
+                        options={['Semua', 'Makanan', 'Minuman', 'Dessert', 'Snack']}
+                        onChange={setFilterKategori}
+                    />
+                    <FilterSelect
+                        label="Bentuk Outlet"
+                        value={filterBentuk}
+                        options={['Semua', 'Dine-in', 'Coffee Shop', 'Express', 'Snack Stall', 'Drink Stall']}
+                        onChange={setFilterBentuk}
+                    />
+                    <FilterSelect
+                        label="Region"
+                        value={filterRegion}
+                        options={['Semua', 'Jakarta Selatan', 'Jakarta Pusat', 'Jakarta Utara', 'Jakarta Barat', 'Jakarta Timur', 'Bandung', 'Surabaya']}
+                        onChange={setFilterRegion}
+                    />
                 </div>
             </div>
         )}
 
-        {/* Stats Grid */}
+        {/* Stats Cards */}
         {user.role === 'GM' ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            <StatCardEnhanced 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard 
                 title="Total Profit Bulan Ini" 
                 value={formatCurrency(1200000000)} 
-                change="+5.2%" 
-                changeType="increase"
-                icon={<span className="text-xl">💰</span>}
-                gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
-                delay={0.1}
+                change="5.2%" 
+                changeType="up"
+                icon="💰"
             />
-            <StatCardEnhanced 
+            <StatCard 
                 title="Proposal Pending" 
                 value={String(pendingProposalsCount)}
-                icon={<span className="text-xl">📋</span>}
-                gradient="bg-gradient-to-br from-amber-500 to-orange-600"
-                delay={0.2}
+                icon="📋"
             />
-            <StatCardEnhanced 
+            <StatCard 
                 title="Total Menu Aktif" 
                 value={String(totalMenus)}
-                icon={<span className="text-xl">🍽️</span>}
-                gradient="bg-gradient-to-br from-purple-500 to-indigo-600"
-                delay={0.3}
+                icon="🍽️"
             />
-            <StatCardEnhanced 
+            <StatCard 
                 title="Menu Disetujui" 
                 value={String(approvedCount)}
-                icon={<span className="text-xl">✅</span>}
-                gradient="bg-gradient-to-br from-blue-500 to-cyan-600"
-                delay={0.4}
+                icon="✅"
             />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            <StatCardEnhanced 
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatCard 
                 title={`Profit ${user.region}`}
                 value={formatCurrency(250000000)} 
-                change="-1.8%" 
-                changeType="decrease"
-                icon={<span className="text-xl">💰</span>}
-                gradient="bg-gradient-to-br from-emerald-500 to-teal-600"
-                delay={0.1}
+                change="1.8%" 
+                changeType="down"
+                icon="💰"
             />
-            <StatCardEnhanced 
+            <StatCard 
                 title="Proposal Aktif" 
                 value={String(rmProposalsCount)}
-                icon={<span className="text-xl">📝</span>}
-                gradient="bg-gradient-to-br from-amber-500 to-orange-600"
-                delay={0.2}
+                icon="📝"
             />
-            <StatCardEnhanced 
+            <StatCard 
                 title="Terlaris Region" 
                 value="Kopi Aren"
-                icon={<span className="text-xl">☕</span>}
-                gradient="bg-gradient-to-br from-purple-500 to-indigo-600"
-                delay={0.3}
+                icon="☕"
             />
-            <StatCardEnhanced 
+            <StatCard 
                 title="Total Transaksi" 
                 value="2,847"
-                change="+12.5%" 
-                changeType="increase"
-                icon={<span className="text-xl">📊</span>}
-                gradient="bg-gradient-to-br from-blue-500 to-cyan-600"
-                delay={0.4}
+                change="12.5%" 
+                changeType="up"
+                icon="📊"
             />
           </div>
         )}
 
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Chart Section */}
-            <div 
-                className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100"
-                style={{
-                    opacity: animated ? 1 : 0,
-                    transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                    transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s'
-                }}
-            >
-                <div className="flex items-center justify-between mb-6">
+        {/* Quick Actions */}
+        <div className="bg-white rounded-lg p-5 border border-slate-200">
+            <h3 className="font-semibold text-slate-900 mb-4">Aksi Cepat</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {user.role === 'GM' && (
+                    <button 
+                        onClick={() => onNav('Menu Proposals')} 
+                        className="flex items-center gap-3 p-4 bg-amber-50 hover:bg-amber-100 rounded-lg transition-colors text-left border border-amber-200"
+                    >
+                        <span className="text-2xl">📋</span>
+                        <div>
+                            <p className="font-medium text-slate-900">Review Proposal</p>
+                            <p className="text-xs text-slate-500">{pendingProposalsCount} pending</p>
+                        </div>
+                    </button>
+                )}
+                {user.role === 'RM' && (
+                    <button 
+                        onClick={() => onNav('Menu Proposals')} 
+                        className="flex items-center gap-3 p-4 bg-purple-50 hover:bg-purple-100 rounded-lg transition-colors text-left border border-purple-200"
+                    >
+                        <span className="text-2xl">📝</span>
+                        <div>
+                            <p className="font-medium text-slate-900">Ajukan Menu</p>
+                            <p className="text-xs text-slate-500">Propose menu baru</p>
+                        </div>
+                    </button>
+                )}
+                {user.role === 'GM' && (
+                    <button 
+                        onClick={() => onNav('Menu Management')} 
+                        className="flex items-center gap-3 p-4 bg-slate-50 hover:bg-slate-100 rounded-lg transition-colors text-left border border-slate-200"
+                    >
+                        <span className="text-2xl">🍽️</span>
+                        <div>
+                            <p className="font-medium text-slate-900">Kelola Menu</p>
+                            <p className="text-xs text-slate-500">{totalMenus} menu aktif</p>
+                        </div>
+                    </button>
+                )}
+                <button 
+                    onClick={() => onNav('Analytics')} 
+                    className="flex items-center gap-3 p-4 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors text-left border border-blue-200"
+                >
+                    <span className="text-2xl">📊</span>
                     <div>
-                        <h4 className="font-semibold text-slate-800 text-lg">Performa Penjualan</h4>
-                        <p className="text-slate-500 text-sm">Trend minggu ini</p>
+                        <p className="font-medium text-slate-900">Analytics</p>
+                        <p className="text-xs text-slate-500">Lihat performa</p>
                     </div>
-                    <button 
-                        onClick={() => onNav('Analytics')}
-                        className="text-sm text-purple-600 hover:text-purple-700 font-medium"
-                    >
-                        Lihat Detail →
-                    </button>
-                </div>
-                <div className="h-48">
-                    <MiniSparkline data={sparklineData} color="#9333ea" />
-                </div>
-                <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-slate-100">
-                    <div className="text-center">
-                        <p className="text-2xl font-bold text-slate-800">Rp 45M</p>
-                        <p className="text-xs text-slate-500">Hari ini</p>
-                    </div>
-                    <div className="text-center border-x border-slate-100">
-                        <p className="text-2xl font-bold text-slate-800">Rp 280M</p>
-                        <p className="text-xs text-slate-500">Minggu ini</p>
-                    </div>
-                    <div className="text-center">
-                        <p className="text-2xl font-bold text-emerald-600">+18%</p>
-                        <p className="text-xs text-slate-500">vs minggu lalu</p>
-                    </div>
-                </div>
-            </div>
-
-            {/* Quick Actions Card */}
-            <div 
-                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100"
-                style={{
-                    opacity: animated ? 1 : 0,
-                    transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                    transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s'
-                }}
-            >
-                <h4 className="font-semibold text-slate-800 text-lg mb-4">Aksi Cepat</h4>
-                <div className="space-y-3">
-                    <button 
-                        onClick={() => onNav('Analytics')} 
-                        className="w-full flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50 hover:from-purple-100 hover:to-blue-100 transition-all group"
-                    >
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                            <AnalyticsIcon />
-                        </div>
-                        <div className="text-left">
-                            <p className="font-medium text-slate-800">Analytics</p>
-                            <p className="text-xs text-slate-500">Lihat performa bisnis</p>
-                        </div>
-                    </button>
-                    
-                    {user.role === 'GM' ? (
-                        <button 
-                            onClick={() => onNav('Menu Proposals')} 
-                            className="w-full flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 hover:from-amber-100 hover:to-orange-100 transition-all group"
-                        >
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                                <ProposalIcon />
-                            </div>
-                            <div className="text-left flex-1">
-                                <p className="font-medium text-slate-800">Review Proposal</p>
-                                <p className="text-xs text-slate-500">{pendingProposalsCount} menunggu review</p>
-                            </div>
-                            {pendingProposalsCount > 0 && (
-                                <span className="px-2 py-1 bg-amber-500 text-white text-xs font-bold rounded-full">{pendingProposalsCount}</span>
-                            )}
-                        </button>
-                    ) : (
-                        <button 
-                            onClick={() => onNav('Menu Proposals')} 
-                            className="w-full flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-emerald-50 to-teal-50 hover:from-emerald-100 hover:to-teal-100 transition-all group"
-                        >
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                                <ProposalIcon />
-                            </div>
-                            <div className="text-left">
-                                <p className="font-medium text-slate-800">Ajukan Menu</p>
-                                <p className="text-xs text-slate-500">Propose menu baru</p>
-                            </div>
-                        </button>
-                    )}
-
-                    {user.role === 'GM' && (
-                        <button 
-                            onClick={() => onNav('Menu Management')} 
-                            className="w-full flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 hover:from-slate-100 hover:to-slate-200 transition-all group"
-                        >
-                            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-slate-600 to-slate-800 flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                                <MenuIcon />
-                            </div>
-                            <div className="text-left">
-                                <p className="font-medium text-slate-800">Kelola Menu</p>
-                                <p className="text-xs text-slate-500">{totalMenus} menu aktif</p>
-                            </div>
-                        </button>
-                    )}
-                </div>
+                </button>
             </div>
         </div>
 
-        {/* Recent Activity / Top Items */}
+        {/* Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Top Selling Items */}
-            <div 
-                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100"
-                style={{
-                    opacity: animated ? 1 : 0,
-                    transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                    transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s'
-                }}
-            >
-                <div className="flex items-center justify-between mb-5">
-                    <h4 className="font-semibold text-slate-800 text-lg">🏆 Menu Terlaris</h4>
-                    <span className="text-xs text-slate-500 bg-slate-100 px-3 py-1 rounded-full">Minggu ini</span>
+            {/* Top Menu */}
+            <div className="bg-white rounded-lg p-5 border border-slate-200">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-slate-900">Menu Terlaris</h3>
+                    <span className="text-xs text-slate-500">Minggu ini</span>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {[
-                        { name: 'Nasi Goreng Spesial', sales: 1240, trend: '+12%', img: 'https://images.unsplash.com/photo-1512058564366-185109023977?auto=format&fit=crop&q=60&w=100' },
-                        { name: 'Americano', sales: 980, trend: '+8%', img: 'https://images.unsplash.com/photo-1507133750040-4a8f570215de?auto=format&fit=crop&q=60&w=100' },
-                        { name: 'Kopi Gula Aren', sales: 875, trend: '+15%', img: 'https://images.unsplash.com/photo-1579888069124-4f4955b2d72b?auto=format&fit=crop&q=60&w=100' },
+                        { name: 'Nasi Goreng Spesial', sales: 1240, img: 'https://images.unsplash.com/photo-1512058564366-185109023977?auto=format&fit=crop&q=60&w=100' },
+                        { name: 'Americano', sales: 980, img: 'https://images.unsplash.com/photo-1507133750040-4a8f570215de?auto=format&fit=crop&q=60&w=100' },
+                        { name: 'Kopi Gula Aren', sales: 875, img: 'https://images.unsplash.com/photo-1579888069124-4f4955b2d72b?auto=format&fit=crop&q=60&w=100' },
                     ].map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                            <div className="relative">
-                                <img src={item.img} alt={item.name} className="w-12 h-12 rounded-xl object-cover" />
-                                <span className="absolute -top-1 -left-1 w-5 h-5 bg-gradient-to-br from-amber-400 to-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
-                                    {idx + 1}
-                                </span>
-                            </div>
+                        <div key={idx} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                            <span className="text-sm font-bold text-slate-400 w-6">{idx + 1}</span>
+                            <img src={item.img} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
                             <div className="flex-1">
-                                <p className="font-medium text-slate-800">{item.name}</p>
+                                <p className="font-medium text-slate-900 text-sm">{item.name}</p>
                                 <p className="text-xs text-slate-500">{item.sales.toLocaleString()} terjual</p>
                             </div>
-                            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg">{item.trend}</span>
                         </div>
                     ))}
                 </div>
             </div>
 
             {/* Recent Proposals */}
-            <div 
-                className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100"
-                style={{
-                    opacity: animated ? 1 : 0,
-                    transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                    transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s'
-                }}
-            >
-                <div className="flex items-center justify-between mb-5">
-                    <h4 className="font-semibold text-slate-800 text-lg">📬 Proposal Terbaru</h4>
-                    <button onClick={() => onNav('Menu Proposals')} className="text-sm text-purple-600 hover:text-purple-700 font-medium">
-                        Lihat Semua →
+            <div className="bg-white rounded-lg p-5 border border-slate-200">
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-slate-900">Proposal Terbaru</h3>
+                    <button onClick={() => onNav('Menu Proposals')} className="text-xs text-purple-600 hover:text-purple-700 font-medium">
+                        Lihat Semua
                     </button>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-3">
                     {proposals.slice(0, 3).map((proposal, idx) => {
                         const statusStyles: Record<ProposalStatus, string> = {
                             Pending: 'bg-amber-100 text-amber-700',
@@ -1258,21 +934,21 @@ const DashboardPage: FC<{ user: User, onNav: (page: Page) => void, proposals: Pr
                             Rejected: 'bg-red-100 text-red-700',
                         };
                         return (
-                            <div key={idx} className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 transition-colors">
-                                <img src={proposal.imageUrl} alt={proposal.menuName} className="w-12 h-12 rounded-xl object-cover" />
+                            <div key={idx} className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors">
+                                <img src={proposal.imageUrl} alt={proposal.menuName} className="w-10 h-10 rounded-lg object-cover" />
                                 <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-slate-800 truncate">{proposal.menuName}</p>
-                                    <p className="text-xs text-slate-500">{proposal.proposer.name} • {proposal.proposer.region}</p>
+                                    <p className="font-medium text-slate-900 text-sm truncate">{proposal.menuName}</p>
+                                    <p className="text-xs text-slate-500">{proposal.proposer.region}</p>
                                 </div>
-                                <span className={`text-xs font-semibold px-2.5 py-1 rounded-lg ${statusStyles[proposal.status]}`}>
+                                <span className={`text-xs font-medium px-2 py-1 rounded ${statusStyles[proposal.status]}`}>
                                     {proposal.status}
                                 </span>
                             </div>
                         );
                     })}
                     {proposals.length === 0 && (
-                        <div className="text-center py-8 text-slate-500">
-                            <p>Belum ada proposal</p>
+                        <div className="text-center py-8 text-slate-400 text-sm">
+                            Belum ada proposal
                         </div>
                     )}
                 </div>
@@ -1854,14 +1530,42 @@ const MenuProposalsPage: FC<{ user: User; proposals: Proposal[]; showToast: (msg
     );
 };
 
-const AnalyticsPage: FC<{ user: User }> = () => {
+const AnalyticsPage: FC<{ user: User }> = ({ user }) => {
     const [mode, setMode] = useState<'Profit' | 'Trend'>('Profit');
     const [timeline, setTimeline] = useState<'Weekly' | 'Monthly' | 'Yearly'>('Monthly');
     const [trendType, setTrendType] = useState<'best' | 'worst'>('best');
     const [compare, setCompare] = useState(false);
+    const [selectedMenu1, setSelectedMenu1] = useState('Nasi Goreng Spesial');
+    const [selectedMenu2, setSelectedMenu2] = useState('Americano');
+    const [timeRange, setTimeRange] = useState<'7days' | '30days' | '90days'>('30days');
 
     const profitData = MOCK_PROFIT_DATA[timeline];
     const trendData = MOCK_TREND_DATA[trendType];
+    
+    // Mock data untuk perbandingan menu
+    const availableMenus = [
+        'Nasi Goreng Spesial',
+        'Americano',
+        'Kopi Gula Aren',
+        'French Fries',
+        'Iced Lemon Tea',
+        'Soto Betawi'
+    ];
+    
+    // Generate mock data untuk perbandingan menu berdasarkan time range
+    const generateMenuComparisonData = (menuName: string): AnalyticsDataPoint[] => {
+        const dataPoints = timeRange === '7days' ? 7 : timeRange === '30days' ? 30 : 90;
+        const baseValue = menuName.includes('Kopi') || menuName.includes('Americano') ? 120 : 180;
+        const variance = menuName === selectedMenu1 ? 1.2 : 0.8;
+        
+        return Array.from({ length: dataPoints }, (_, i) => ({
+            label: timeRange === '7days' ? `D${i + 1}` : timeRange === '30days' ? `${i + 1}` : `D${i + 1}`,
+            value: Math.floor(baseValue * variance * (0.7 + Math.random() * 0.6))
+        }));
+    };
+    
+    const menu1Data = generateMenuComparisonData(selectedMenu1);
+    const menu2Data = generateMenuComparisonData(selectedMenu2);
 
     const FilterButton: FC<{ label: string; active: boolean; onClick: () => void; }> = ({ label, active, onClick }) => (
         <button
@@ -1885,7 +1589,7 @@ const AnalyticsPage: FC<{ user: User }> = () => {
       </div>
     );
 
-    const LineChart: FC<{ data: AnalyticsDataPoint[] }> = ({ data }) => {
+    const LineChart: FC<{ data: AnalyticsDataPoint[]; color?: string }> = ({ data, color = '#9333ea' }) => {
         const [animated, setAnimated] = useState(false);
         
         useEffect(() => {
@@ -1903,18 +1607,18 @@ const AnalyticsPage: FC<{ user: User }> = () => {
         return (
             <svg viewBox="0 0 100 100" className="w-full h-full" preserveAspectRatio="none">
                 <defs>
-                    <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#9333ea" />
-                        <stop offset="100%" stopColor="#3b82f6" />
+                    <linearGradient id={`lineGradient-${color}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor={color} />
+                        <stop offset="100%" stopColor={color === '#9333ea' ? '#3b82f6' : '#f59e0b'} />
                     </linearGradient>
-                    <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-                        <stop offset="0%" stopColor="#9333ea" stopOpacity="0.3" />
-                        <stop offset="100%" stopColor="#9333ea" stopOpacity="0" />
+                    <linearGradient id={`areaGradient-${color}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor={color} stopOpacity="0.3" />
+                        <stop offset="100%" stopColor={color} stopOpacity="0" />
                     </linearGradient>
                 </defs>
                 {/* Area fill under the line */}
                 <polygon 
-                    fill="url(#areaGradient)" 
+                    fill={`url(#areaGradient-${color})`}
                     points={`0,100 ${points} 100,100`}
                     style={{
                         opacity: animated ? 1 : 0,
@@ -1924,7 +1628,7 @@ const AnalyticsPage: FC<{ user: User }> = () => {
                 {/* Animated line */}
                 <polyline 
                     fill="none" 
-                    stroke="url(#lineGradient)" 
+                    stroke={`url(#lineGradient-${color})`}
                     strokeWidth="2" 
                     strokeLinecap="round" 
                     strokeLinejoin="round"
@@ -1942,7 +1646,7 @@ const AnalyticsPage: FC<{ user: User }> = () => {
                         cx={`${(i / (data.length - 1)) * 100}`} 
                         cy={`${100 - (d.value / Math.max(maxValue, 1)) * 95}`} 
                         r={animated ? 3 : 0}
-                        fill="#9333ea"
+                        fill={color}
                         style={{
                             transition: `r 0.3s ease-out ${0.5 + i * 0.2}s`,
                         }}
@@ -1965,7 +1669,7 @@ const AnalyticsPage: FC<{ user: User }> = () => {
                         cx={`${(i / (data.length - 1)) * 100}`} 
                         cy={`${100 - (d.value / Math.max(maxValue, 1)) * 95}`} 
                         r="6"
-                        fill="#9333ea"
+                        fill={color}
                         opacity="0"
                     >
                         <animate 
@@ -1985,6 +1689,141 @@ const AnalyticsPage: FC<{ user: User }> = () => {
                     </circle>
                 ))}
             </svg>
+        );
+    };
+    
+    // Comparison Line Chart untuk 2 menu
+    const ComparisonLineChart: FC<{ data1: AnalyticsDataPoint[]; data2: AnalyticsDataPoint[]; label1: string; label2: string }> = ({ data1, data2, label1, label2 }) => {
+        const [animated, setAnimated] = useState(false);
+        
+        useEffect(() => {
+            const timer = setTimeout(() => setAnimated(true), 100);
+            return () => clearTimeout(timer);
+        }, [data1, data2]);
+
+        if (!data1 || !data2 || data1.length === 0 || data2.length === 0) {
+            return <div className="flex items-center justify-center h-full text-slate-500">No data</div>;
+        }
+        
+        const maxValue = Math.max(...data1.map(d => d.value), ...data2.map(d => d.value));
+        const points1 = data1.map((d, i) => `${(i / (data1.length - 1)) * 100},${100 - (d.value / Math.max(maxValue, 1)) * 90}`).join(' ');
+        const points2 = data2.map((d, i) => `${(i / (data2.length - 1)) * 100},${100 - (d.value / Math.max(maxValue, 1)) * 90}`).join(' ');
+        
+        const pathLength = 300;
+
+        return (
+            <div className="w-full h-full">
+                <div className="flex justify-center gap-6 mb-3">
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-purple-600"></div>
+                        <span className="text-xs font-medium text-slate-600">{label1}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                        <span className="text-xs font-medium text-slate-600">{label2}</span>
+                    </div>
+                </div>
+                <svg viewBox="0 0 100 100" className="w-full h-[calc(100%-2rem)]" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="lineGradient1" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#9333ea" />
+                            <stop offset="100%" stopColor="#3b82f6" />
+                        </linearGradient>
+                        <linearGradient id="lineGradient2" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#f59e0b" />
+                            <stop offset="100%" stopColor="#ef4444" />
+                        </linearGradient>
+                        <linearGradient id="areaGradient1" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#9333ea" stopOpacity="0.2" />
+                            <stop offset="100%" stopColor="#9333ea" stopOpacity="0" />
+                        </linearGradient>
+                        <linearGradient id="areaGradient2" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.2" />
+                            <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+                        </linearGradient>
+                    </defs>
+                    
+                    {/* Area Menu 1 */}
+                    <polygon 
+                        fill="url(#areaGradient1)" 
+                        points={`0,100 ${points1} 100,100`}
+                        style={{
+                            opacity: animated ? 1 : 0,
+                            transition: 'opacity 1s ease-out 0.5s'
+                        }}
+                    />
+                    
+                    {/* Area Menu 2 */}
+                    <polygon 
+                        fill="url(#areaGradient2)" 
+                        points={`0,100 ${points2} 100,100`}
+                        style={{
+                            opacity: animated ? 1 : 0,
+                            transition: 'opacity 1s ease-out 0.6s'
+                        }}
+                    />
+                    
+                    {/* Line Menu 1 */}
+                    <polyline 
+                        fill="none" 
+                        stroke="url(#lineGradient1)" 
+                        strokeWidth="2.5" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        points={points1}
+                        style={{
+                            strokeDasharray: pathLength,
+                            strokeDashoffset: animated ? 0 : pathLength,
+                            transition: 'stroke-dashoffset 1.5s ease-out'
+                        }}
+                    />
+                    
+                    {/* Line Menu 2 */}
+                    <polyline 
+                        fill="none" 
+                        stroke="url(#lineGradient2)" 
+                        strokeWidth="2.5" 
+                        strokeLinecap="round" 
+                        strokeLinejoin="round"
+                        points={points2}
+                        style={{
+                            strokeDasharray: pathLength,
+                            strokeDashoffset: animated ? 0 : pathLength,
+                            transition: 'stroke-dashoffset 1.5s ease-out 0.3s'
+                        }}
+                    />
+                    
+                    {/* Dots Menu 1 */}
+                    {data1.map((d, i) => (
+                        <circle 
+                            key={`m1-${i}`}
+                            cx={`${(i / (data1.length - 1)) * 100}`} 
+                            cy={`${100 - (d.value / Math.max(maxValue, 1)) * 90}`} 
+                            r="3"
+                            fill="#9333ea"
+                            style={{
+                                opacity: animated ? 1 : 0,
+                                transition: `opacity 0.3s ease-out ${0.5 + i * 0.05}s`,
+                            }}
+                        />
+                    ))}
+                    
+                    {/* Dots Menu 2 */}
+                    {data2.map((d, i) => (
+                        <circle 
+                            key={`m2-${i}`}
+                            cx={`${(i / (data2.length - 1)) * 100}`} 
+                            cy={`${100 - (d.value / Math.max(maxValue, 1)) * 90}`} 
+                            r="3"
+                            fill="#f59e0b"
+                            style={{
+                                opacity: animated ? 1 : 0,
+                                transition: `opacity 0.3s ease-out ${0.8 + i * 0.05}s`,
+                            }}
+                        />
+                    ))}
+                </svg>
+            </div>
         );
     };
 
@@ -2105,7 +1944,7 @@ const AnalyticsPage: FC<{ user: User }> = () => {
                     </div>
                 )}
 
-                {mode === 'Trend' && (
+                {mode === 'Trend' && !compare && (
                      <div className="flex items-center gap-2">
                         <span className="text-sm font-medium text-slate-500 mr-2">Kategori:</span>
                         <FilterButton label="🏆 Terlaris" active={trendType === 'best'} onClick={() => setTrendType('best')} />
@@ -2114,15 +1953,86 @@ const AnalyticsPage: FC<{ user: User }> = () => {
                 )}
 
                 <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-2">
-                    <span className="text-sm font-medium text-slate-600">🔄 Bandingkan</span>
+                    <span className="text-sm font-medium text-slate-600">🔄 Bandingkan Menu</span>
                     <button onClick={() => setCompare(!compare)} className={`relative inline-flex items-center h-7 rounded-full w-12 transition-all duration-200 ${compare ? 'bg-gradient-to-r from-purple-600 to-blue-600' : 'bg-slate-300'}`}>
                         <span className={`inline-block w-5 h-5 transform bg-white rounded-full shadow transition-transform duration-200 ${compare ? 'translate-x-6' : 'translate-x-1'}`} />
                     </button>
                 </div>
             </div>
 
+            {/* Menu Comparison Controls - Tampil hanya saat mode Trend dan compare aktif */}
+            {mode === 'Trend' && compare && (
+                <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100">
+                    <h4 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                        <span>⚖️</span> Pengaturan Perbandingan Menu
+                    </h4>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* Pilih Menu 1 */}
+                        <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-2">Menu 1</label>
+                            <select 
+                                value={selectedMenu1}
+                                onChange={(e) => setSelectedMenu1(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-purple-50 border-2 border-purple-200 rounded-xl text-sm font-medium text-purple-700 focus:outline-none focus:border-purple-400 transition-colors"
+                            >
+                                {availableMenus.map(menu => (
+                                    <option key={menu} value={menu}>{menu}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        {/* Pilih Menu 2 */}
+                        <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-2">Menu 2</label>
+                            <select 
+                                value={selectedMenu2}
+                                onChange={(e) => setSelectedMenu2(e.target.value)}
+                                className="w-full px-4 py-2.5 bg-amber-50 border-2 border-amber-200 rounded-xl text-sm font-medium text-amber-700 focus:outline-none focus:border-amber-400 transition-colors"
+                            >
+                                {availableMenus.filter(m => m !== selectedMenu1).map(menu => (
+                                    <option key={menu} value={menu}>{menu}</option>
+                                ))}
+                            </select>
+                        </div>
+                        
+                        {/* Pilih Durasi Waktu */}
+                        <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-2">Durasi Timeline</label>
+                            <div className="flex gap-2">
+                                <button 
+                                    onClick={() => setTimeRange('7days')}
+                                    className={`flex-1 px-3 py-2.5 text-xs rounded-xl font-medium transition-all ${timeRange === '7days' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                >
+                                    7 Hari
+                                </button>
+                                <button 
+                                    onClick={() => setTimeRange('30days')}
+                                    className={`flex-1 px-3 py-2.5 text-xs rounded-xl font-medium transition-all ${timeRange === '30days' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                >
+                                    30 Hari
+                                </button>
+                                <button 
+                                    onClick={() => setTimeRange('90days')}
+                                    className={`flex-1 px-3 py-2.5 text-xs rounded-xl font-medium transition-all ${timeRange === '90days' ? 'bg-blue-600 text-white shadow-lg' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                                >
+                                    90 Hari
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Info Perbandingan */}
+                    <div className="mt-4 p-3 bg-blue-50 rounded-xl flex items-start gap-2">
+                        <span className="text-blue-600">ℹ️</span>
+                        <p className="text-xs text-blue-700">
+                            Bandingkan performa penjualan 2 menu dalam periode yang sama. Data ditampilkan dalam satuan penjualan per hari.
+                        </p>
+                    </div>
+                </div>
+            )}
+
             {/* Charts */}
-            <div className={`grid gap-6 ${compare ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-6 ${compare && mode === 'Trend' ? 'grid-cols-1' : compare ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
                 {mode === 'Profit' ? (
                     <>
                         <ChartContainer title={`📈 Trend Profit (${timeline === 'Weekly' ? 'Mingguan' : timeline === 'Monthly' ? 'Bulanan' : 'Tahunan'})`} insight="Profit naik 5.2% periode ini.">
@@ -2130,20 +2040,108 @@ const AnalyticsPage: FC<{ user: User }> = () => {
                         </ChartContainer>
                         {compare && (
                              <ChartContainer title={`📊 Perbandingan Periode Sebelumnya`} insight="Data periode perbandingan.">
-                                <LineChart data={profitData.map(d => ({...d, value: d.value * (0.8 + Math.random() * 0.2)}))} />
+                                <LineChart data={profitData.map(d => ({...d, value: d.value * (0.8 + Math.random() * 0.2)}))} color="#f59e0b" />
                              </ChartContainer>
                         )}
                     </>
+                ) : compare ? (
+                    // Mode Perbandingan 2 Menu
+                    <>
+                        <ChartContainer 
+                            title={`📊 Perbandingan: ${selectedMenu1} vs ${selectedMenu2}`} 
+                            insight={`Periode ${timeRange === '7days' ? '7 hari' : timeRange === '30days' ? '30 hari' : '90 hari'} terakhir`}
+                        >
+                            <ComparisonLineChart 
+                                data1={menu1Data} 
+                                data2={menu2Data}
+                                label1={selectedMenu1}
+                                label2={selectedMenu2}
+                            />
+                        </ChartContainer>
+                        
+                        {/* Statistics Cards */}
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* Stats Menu 1 */}
+                            <div className="bg-gradient-to-br from-purple-50 to-blue-50 rounded-2xl p-5 border-2 border-purple-200">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-3 h-3 rounded-full bg-purple-600"></div>
+                                    <h5 className="font-semibold text-slate-800">{selectedMenu1}</h5>
+                                </div>
+                                <div className="space-y-3">
+                                    <div>
+                                        <p className="text-xs text-slate-500">Total Penjualan</p>
+                                        <p className="text-2xl font-bold text-purple-600">
+                                            {menu1Data.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">Rata-rata per Hari</p>
+                                        <p className="text-lg font-semibold text-slate-700">
+                                            {Math.round(menu1Data.reduce((sum, d) => sum + d.value, 0) / menu1Data.length).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">Penjualan Tertinggi</p>
+                                        <p className="text-lg font-semibold text-slate-700">
+                                            {Math.max(...menu1Data.map(d => d.value)).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Stats Menu 2 */}
+                            <div className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl p-5 border-2 border-amber-200">
+                                <div className="flex items-center gap-2 mb-3">
+                                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
+                                    <h5 className="font-semibold text-slate-800">{selectedMenu2}</h5>
+                                </div>
+                                <div className="space-y-3">
+                                    <div>
+                                        <p className="text-xs text-slate-500">Total Penjualan</p>
+                                        <p className="text-2xl font-bold text-amber-600">
+                                            {menu2Data.reduce((sum, d) => sum + d.value, 0).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">Rata-rata per Hari</p>
+                                        <p className="text-lg font-semibold text-slate-700">
+                                            {Math.round(menu2Data.reduce((sum, d) => sum + d.value, 0) / menu2Data.length).toLocaleString()}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <p className="text-xs text-slate-500">Penjualan Tertinggi</p>
+                                        <p className="text-lg font-semibold text-slate-700">
+                                            {Math.max(...menu2Data.map(d => d.value)).toLocaleString()}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Winner Card */}
+                            <div className="col-span-2 bg-gradient-to-r from-emerald-500 to-green-500 rounded-2xl p-5 text-white">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-sm opacity-90 mb-1">🏆 Menu Terbaik</p>
+                                        <p className="text-2xl font-bold">
+                                            {menu1Data.reduce((sum, d) => sum + d.value, 0) > menu2Data.reduce((sum, d) => sum + d.value, 0) 
+                                                ? selectedMenu1 
+                                                : selectedMenu2}
+                                        </p>
+                                        <p className="text-sm opacity-90 mt-1">
+                                            Unggul {Math.abs(menu1Data.reduce((sum, d) => sum + d.value, 0) - menu2Data.reduce((sum, d) => sum + d.value, 0)).toLocaleString()} penjualan
+                                        </p>
+                                    </div>
+                                    <div className="text-5xl">🎯</div>
+                                </div>
+                            </div>
+                        </div>
+                    </>
                 ) : (
+                    // Mode Trend biasa (tanpa perbandingan)
                     <>
                         <ChartContainer title={`${trendType === 'best' ? '🏆 Menu Terlaris' : '📉 Menu Kurang Laris'}`} insight={`${trendData[0].name} adalah yang teratas.`}>
                            <BarChart data={trendData} />
                         </ChartContainer>
-                        {compare && (
-                             <ChartContainer title={`🔄 Perbandingan Trend`} insight={`Membandingkan performa menu.`}>
-                                <BarChart data={MOCK_TREND_DATA[trendType === 'best' ? 'worst' : 'best']} />
-                             </ChartContainer>
-                        )}
                     </>
                 )}
             </div>
