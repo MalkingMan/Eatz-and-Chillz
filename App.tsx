@@ -48,6 +48,12 @@ interface Proposal {
   imageUrl: string;
   rmNotes: string;
   status: ProposalStatus;
+    // Targeting & business rule metadata carried from RM proposal
+    category: MenuCategory;
+    allowedStores: StoreType[];
+    allowedRegions: string[];
+    hasServiceFee?: boolean;
+    taxRate: number;
   proposer: {
     id: number;
     name: string;
@@ -80,9 +86,9 @@ const MENUS_DATA: Menu[] = [
 ];
 
 const PROPOSALS_DATA: Proposal[] = [
-  { id: 1, menuName: 'Kopi Gula Aren', description: 'Kopi susu dengan pemanis gula aren asli.', price: 28000, imageUrl: 'https://images.unsplash.com/photo-1579888069124-4f4955b2d72b?auto=format&fit=crop&q=60&w=500', rmNotes: 'Sangat populer di kalangan anak muda Jakarta saat ini. Potensi sales tinggi.', status: 'Pending', proposer: { id: 2, name: 'Benny Carter', region: 'Jakarta' } },
-  { id: 2, menuName: 'Soto Betawi', description: 'Soto khas Jakarta dengan kuah santan dan daging sapi.', price: 55000, imageUrl: 'https://images.unsplash.com/photo-1627891152229-285d03a11a32?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu otentik yang dapat menarik wisatawan dan penduduk lokal.', status: 'Approved', proposer: { id: 3, name: 'Citra Dewi', region: 'Bandung' } },
-  { id: 3, menuName: 'Cireng Bumbu Rujak', description: 'Camilan aci goreng dengan saus rujak pedas manis.', price: 22000, imageUrl: 'https://images.unsplash.com/photo-1629278282361-18579d57a5e9?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu ini tidak cocok dengan citra brand kita yang premium.', status: 'Rejected', proposer: { id: 4, name: 'Dodi Hermawan', region: 'Surabaya' } },
+    { id: 1, menuName: 'Kopi Gula Aren', description: 'Kopi susu dengan pemanis gula aren asli.', price: 28000, imageUrl: 'https://images.unsplash.com/photo-1579888069124-4f4955b2d72b?auto=format&fit=crop&q=60&w=500', rmNotes: 'Sangat populer di kalangan anak muda Jakarta saat ini. Potensi sales tinggi.', status: 'Pending', category: 'Kopi', allowedStores: ['Coffee Shop', 'Dine-in'], allowedRegions: ['All'], hasServiceFee: true, taxRate: 10, proposer: { id: 2, name: 'Benny Carter', region: 'Jakarta' } },
+    { id: 2, menuName: 'Soto Betawi', description: 'Soto khas Jakarta dengan kuah santan dan daging sapi.', price: 55000, imageUrl: 'https://images.unsplash.com/photo-1627891152229-285d03a11a32?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu otentik yang dapat menarik wisatawan dan penduduk lokal.', status: 'Approved', category: 'Makanan', allowedStores: ['Dine-in', 'Express'], allowedRegions: ['All'], hasServiceFee: true, taxRate: 10, proposer: { id: 3, name: 'Citra Dewi', region: 'Bandung' } },
+    { id: 3, menuName: 'Cireng Bumbu Rujak', description: 'Camilan aci goreng dengan saus rujak pedas manis.', price: 22000, imageUrl: 'https://images.unsplash.com/photo-1629278282361-18579d57a5e9?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu ini tidak cocok dengan citra brand kita yang premium.', status: 'Rejected', category: 'Snack', allowedStores: ['Snack Stall', 'Dine-in', 'Express'], allowedRegions: ['All'], hasServiceFee: false, taxRate: 10, proposer: { id: 4, name: 'Dodi Hermawan', region: 'Surabaya' } },
 ];
 
 const MOCK_PROFIT_DATA: Record<string, AnalyticsDataPoint[]> = {
@@ -661,7 +667,15 @@ const DashboardPage: FC<{ user: User, onNav: (page: Page) => void, proposals: Pr
     const pendingProposalsCount = proposals.filter(p => p.status === 'Pending').length;
     const rmProposalsCount = proposals.filter(p => p.proposer.id === user.id && p.status === 'Pending').length;
     const approvedCount = proposals.filter(p => p.status === 'Approved').length;
-    const totalMenus = menus.length;
+    const filteredMenusGM = useMemo(() => {
+        return menus.filter(m => {
+            const byCategory = filterKategori === 'Semua' || m.category === (filterKategori as MenuCategory);
+            const byStore = filterBentuk === 'Semua' || m.allowedStores.includes(filterBentuk as StoreType);
+            const byRegion = filterRegion === 'Semua' || m.allowedRegions.includes('All') || m.allowedRegions.includes(filterRegion);
+            return byCategory && byStore && byRegion;
+        });
+    }, [menus, filterKategori, filterBentuk, filterRegion]);
+    const totalMenus = filteredMenusGM.length;
     
     useEffect(() => {
         const timer = setTimeout(() => setAnimated(true), 100);
@@ -704,9 +718,10 @@ const DashboardPage: FC<{ user: User, onNav: (page: Page) => void, proposals: Pr
             options: [
                 { value: 'Semua', label: 'Semua Bentuk', icon: '🏢' },
                 { value: 'Dine-in', label: 'Dine-in', icon: '🪑' },
+                { value: 'Coffee Shop', label: 'Coffee Shop', icon: '☕' },
                 { value: 'Express', label: 'Express', icon: '⚡' },
-                { value: 'Drive-thru', label: 'Drive-thru', icon: '🚗' },
-                { value: 'Delivery', label: 'Delivery Only', icon: '🛵' },
+                { value: 'Snack Stall', label: 'Snack Stall', icon: '🍿' },
+                { value: 'Drink Stall', label: 'Drink Stall', icon: '🥤' },
             ],
             gradient: 'from-blue-500 to-cyan-500',
             bgGradient: 'from-blue-50 to-cyan-50',
@@ -2547,6 +2562,11 @@ const App = () => {
           price: data.price,
           imageUrl: data.imageUrl,
           rmNotes: data.rmNotes || '',
+          category: data.category,
+          allowedStores: data.allowedStores,
+          allowedRegions: data.allowedRegions,
+          hasServiceFee: data.hasServiceFee,
+          taxRate: data.taxRate,
           status: 'Pending',
           proposer: {
               id: currentUser.id,
@@ -2575,17 +2595,39 @@ const App = () => {
           const newMenu: Menu = {
               id: Date.now(),
               name: approvedProposal.menuName,
-              category: 'Makanan', // Default category, can be enhanced
+              category: approvedProposal.category,
               price: approvedProposal.price,
               description: approvedProposal.description,
               imageUrl: approvedProposal.imageUrl,
-              allowedStores: ['Dine-in', 'Express'], // Default
-              allowedRegions: ['All'],
-              hasServiceFee: true, // Dine-in has service fee
-              taxRate: 10,
+              allowedStores: approvedProposal.allowedStores,
+              allowedRegions: approvedProposal.allowedRegions,
+              hasServiceFee: approvedProposal.hasServiceFee,
+              taxRate: approvedProposal.taxRate,
           };
           setMenus(prev => [...prev, newMenu]);
       }
+  };
+
+  // Update proposal data (used for RM editing pending proposals or GM pre-approval edits)
+  const handleUpdateProposalData = (id: number, data: MenuFormData) => {
+      setProposals(prev => prev.map(p => {
+          if (p.id === id) {
+              return {
+                  ...p,
+                  menuName: data.name,
+                  description: data.description,
+                  price: data.price,
+                  imageUrl: data.imageUrl,
+                  rmNotes: data.rmNotes || p.rmNotes,
+                  category: data.category,
+                  allowedStores: data.allowedStores,
+                  allowedRegions: data.allowedRegions,
+                  hasServiceFee: data.hasServiceFee,
+                  taxRate: data.taxRate,
+              };
+          }
+          return p;
+      }));
   };
 
   const renderPage = () => {
@@ -2595,7 +2637,7 @@ const App = () => {
       case 'Menu Management':
         return <MenuManagementPage menus={menus} showToast={showToast} onAddMenu={handleAddMenu} onUpdateMenu={handleUpdateMenu} />;
       case 'Menu Proposals':
-        return <MenuProposalsPage user={currentUser} proposals={proposals} showToast={showToast} onAddProposal={handleAddProposal} onUpdateStatus={handleUpdateProposalStatus} />;
+                return <MenuProposalsPage user={currentUser} proposals={proposals} showToast={showToast} onAddProposal={handleAddProposal} onUpdateStatus={handleUpdateProposalStatus} />;
       case 'Analytics':
         return <AnalyticsPage user={currentUser} />;
       case 'Settings':
