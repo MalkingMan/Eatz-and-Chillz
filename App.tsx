@@ -35,6 +35,9 @@ interface Menu {
   description: string;
   imageUrl: string;
   allowedStores: StoreType[];
+  allowedRegions: string[]; // Region tertentu atau ['All'] untuk semua region
+  hasServiceFee?: boolean; // Otomatis true untuk Dine-in & Coffee Shop
+  taxRate: number; // Default 10% untuk semua
 }
 
 interface Proposal {
@@ -60,7 +63,7 @@ interface TrendDataItem {
     name: string;
     sales: number;
 }
-type MenuFormData = Omit<Menu, 'id' | 'allowedStores'> & { rmNotes?: string };
+type MenuFormData = Omit<Menu, 'id'> & { rmNotes?: string };
 
 // --- MOCK DATA ---
 const USERS: Record<UserRole, User> = {
@@ -69,11 +72,11 @@ const USERS: Record<UserRole, User> = {
 };
 
 const MENUS_DATA: Menu[] = [
-  { id: 1, name: 'Nasi Goreng Spesial', category: 'Makanan', price: 45000, description: 'Nasi goreng klasik dengan telur, ayam, dan udang.', imageUrl: 'https://images.unsplash.com/photo-1512058564366-185109023977?auto=format&fit=crop&q=60&w=500', allowedStores: ['Dine-in', 'Express'] },
-  { id: 2, name: 'Americano', category: 'Kopi', price: 25000, description: 'Espresso dengan tambahan air panas.', imageUrl: 'https://images.unsplash.com/photo-1507133750040-4a8f570215de?auto=format&fit=crop&q=60&w=500', allowedStores: ['Dine-in', 'Coffee Shop'] },
-  { id: 3, name: 'French Fries', category: 'Snack', price: 20000, description: 'Kentang goreng renyah.', imageUrl: 'https://images.unsplash.com/photo-1576107232684-c7be35d0879a?auto=format&fit=crop&q=60&w=500', allowedStores: ['Snack Stall', 'Dine-in', 'Express'] },
-  { id: 4, name: 'Iced Lemon Tea', category: 'Minuman', price: 18000, description: 'Teh dingin dengan perasan lemon segar.', imageUrl: 'https://images.unsplash.com/photo-1556679343-af51b89736f5?auto=format&fit=crop&q=60&w=500', allowedStores: ['Dine-in', 'Express', 'Coffee Shop'] },
-  { id: 5, name: 'Instant Coffee Sachet', category: 'Minuman Instan', price: 10000, description: 'Kopi instan sachet siap seduh.', imageUrl: 'https://images.unsplash.com/photo-1596591603954-4a0b0f792646?auto=format&fit=crop&q=60&w=500', allowedStores: ['Drink Stall'] },
+  { id: 1, name: 'Nasi Goreng Spesial', category: 'Makanan', price: 45000, description: 'Nasi goreng klasik dengan telur, ayam, dan udang.', imageUrl: 'https://images.unsplash.com/photo-1512058564366-185109023977?auto=format&fit=crop&q=60&w=500', allowedStores: ['Dine-in', 'Express'], allowedRegions: ['All'], hasServiceFee: true, taxRate: 10 },
+  { id: 2, name: 'Americano', category: 'Kopi', price: 25000, description: 'Espresso dengan tambahan air panas.', imageUrl: 'https://images.unsplash.com/photo-1507133750040-4a8f570215de?auto=format&fit=crop&q=60&w=500', allowedStores: ['Dine-in', 'Coffee Shop'], allowedRegions: ['All'], hasServiceFee: true, taxRate: 10 },
+  { id: 3, name: 'French Fries', category: 'Snack', price: 20000, description: 'Kentang goreng renyah.', imageUrl: 'https://images.unsplash.com/photo-1576107232684-c7be35d0879a?auto=format&fit=crop&q=60&w=500', allowedStores: ['Snack Stall', 'Dine-in', 'Express'], allowedRegions: ['All'], hasServiceFee: false, taxRate: 10 },
+  { id: 4, name: 'Iced Lemon Tea', category: 'Minuman', price: 18000, description: 'Teh dingin dengan perasan lemon segar.', imageUrl: 'https://images.unsplash.com/photo-1556679343-af51b89736f5?auto=format&fit=crop&q=60&w=500', allowedStores: ['Dine-in', 'Express', 'Coffee Shop'], allowedRegions: ['All'], hasServiceFee: false, taxRate: 10 },
+  { id: 5, name: 'Instant Coffee Sachet', category: 'Minuman Instan', price: 10000, description: 'Kopi instan sachet siap seduh.', imageUrl: 'https://images.unsplash.com/photo-1596591603954-4a0b0f792646?auto=format&fit=crop&q=60&w=500', allowedStores: ['Drink Stall'], allowedRegions: ['All'], hasServiceFee: false, taxRate: 10 },
 ];
 
 const PROPOSALS_DATA: Proposal[] = [
@@ -221,6 +224,9 @@ const MenuForm: FC<{ onSave: (data: MenuFormData) => void, onCancel: () => void,
     const [imageUrl, setImageUrl] = useState('');
     const [rmNotes, setRmNotes] = useState('');
     const [previewImage, setPreviewImage] = useState('');
+    const [allowedStores, setAllowedStores] = useState<StoreType[]>([]);
+    const [allowedRegions, setAllowedRegions] = useState<string[]>(['All']);
+    const [taxRate] = useState(10); // Fixed 10% untuk semua
     
     useEffect(() => {
         if(initialData) {
@@ -230,8 +236,34 @@ const MenuForm: FC<{ onSave: (data: MenuFormData) => void, onCancel: () => void,
             setCategory(initialData.category);
             setImageUrl(initialData.imageUrl);
             setPreviewImage(initialData.imageUrl);
+            setAllowedStores(initialData.allowedStores);
+            setAllowedRegions(initialData.allowedRegions);
         }
     }, [initialData]);
+
+    // Aturan kategori vs store type (SRS Point 4, 5)
+    const getAvailableStores = (): StoreType[] => {
+        switch(category) {
+            case 'Snack':
+                return ['Snack Stall', 'Dine-in', 'Express'];
+            case 'Minuman Instan':
+                return ['Drink Stall'];
+            case 'Kopi':
+                return ['Coffee Shop', 'Dine-in'];
+            case 'Makanan':
+                return ['Dine-in', 'Express'];
+            case 'Minuman':
+                return ['Dine-in', 'Coffee Shop', 'Express'];
+            default:
+                return [];
+        }
+    };
+
+    // Auto-update allowed stores saat kategori berubah
+    useEffect(() => {
+        const available = getAvailableStores();
+        setAllowedStores(prevStores => prevStores.filter(store => available.includes(store)));
+    }, [category]);
 
     const handleImageUrlChange = (url: string) => {
         setImageUrl(url);
@@ -240,14 +272,53 @@ const MenuForm: FC<{ onSave: (data: MenuFormData) => void, onCancel: () => void,
         }
     };
 
+    const toggleStore = (store: StoreType) => {
+        setAllowedStores(prev => 
+            prev.includes(store) ? prev.filter(s => s !== store) : [...prev, store]
+        );
+    };
+
+    const toggleRegion = (region: string) => {
+        if (region === 'All') {
+            setAllowedRegions(['All']);
+        } else {
+            setAllowedRegions(prev => {
+                const filtered = prev.filter(r => r !== 'All');
+                return filtered.includes(region) 
+                    ? filtered.filter(r => r !== region)
+                    : [...filtered, region];
+            });
+        }
+    };
+
+    // Hitung service fee otomatis (SRS Point 9)
+    const hasServiceFee = allowedStores.some(store => store === 'Dine-in' || store === 'Coffee Shop');
+
+    const calculateFinalPrice = () => {
+        const basePrice = Number(price);
+        const serviceFee = hasServiceFee ? basePrice * 0.05 : 0; // 5% service fee
+        const tax = basePrice * (taxRate / 100); // 10% tax
+        return basePrice + serviceFee + tax;
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (allowedStores.length === 0) {
+            alert('Pilih minimal 1 jenis outlet!');
+            return;
+        }
+
         onSave({
             name,
             description,
             price: Number(price),
             category,
             imageUrl: imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=60&w=500',
+            allowedStores,
+            allowedRegions: allowedRegions.length === 0 ? ['All'] : allowedRegions,
+            hasServiceFee,
+            taxRate,
             rmNotes
         });
     };
@@ -407,6 +478,129 @@ const MenuForm: FC<{ onSave: (data: MenuFormData) => void, onCancel: () => void,
                     <p className="text-xs text-slate-400 mt-1.5">Paste URL gambar dari Unsplash atau sumber lain</p>
                 </div>
             </div>
+
+            {/* Bentuk Outlet (Store Types) */}
+            <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl p-5 border-2 border-indigo-200">
+                <label className="flex items-center gap-2 text-sm font-semibold text-indigo-800 mb-3">
+                    <span className="w-6 h-6 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center text-white text-xs">🏪</span>
+                    Bentuk Outlet yang Diizinkan
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                    {getAvailableStores().map((store) => {
+                        const storeIcons: Record<StoreType, string> = {
+                            'Dine-in': '🍽️',
+                            'Coffee Shop': '☕',
+                            'Express': '⚡',
+                            'Snack Stall': '🍿',
+                            'Drink Stall': '🥤',
+                        };
+                        const isSelected = allowedStores.includes(store);
+                        return (
+                            <button
+                                key={store}
+                                type="button"
+                                onClick={() => toggleStore(store)}
+                                className={`relative rounded-xl p-3 border-2 transition-all ${
+                                    isSelected
+                                        ? 'border-indigo-500 bg-indigo-500 text-white shadow-lg'
+                                        : 'border-indigo-200 bg-white text-slate-700 hover:border-indigo-300 hover:shadow-md'
+                                }`}
+                            >
+                                <div className="flex flex-col items-center gap-1">
+                                    <span className="text-xl">{storeIcons[store]}</span>
+                                    <span className="text-xs font-semibold text-center">{store}</span>
+                                </div>
+                                {isSelected && (
+                                    <div className="absolute top-1 right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                                        <span className="text-indigo-500 text-xs font-bold">✓</span>
+                                    </div>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+                <div className="mt-3 flex items-start gap-2 p-3 bg-indigo-100 rounded-xl">
+                    <span className="text-indigo-600">ℹ️</span>
+                    <p className="text-xs text-indigo-700">
+                        {category === 'Snack' && 'Snack hanya bisa dijual di Snack Stall, Dine-in, dan Express'}
+                        {category === 'Minuman Instan' && 'Minuman Instan hanya bisa dijual di Drink Stall'}
+                        {category === 'Kopi' && 'Kopi bisa dijual di Coffee Shop dan Dine-in'}
+                        {category === 'Makanan' && 'Makanan bisa dijual di Dine-in dan Express'}
+                        {category === 'Minuman' && 'Minuman bisa dijual di Dine-in, Coffee Shop, dan Express'}
+                    </p>
+                </div>
+            </div>
+
+            {/* Region Selection */}
+            <div className="bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl p-5 border-2 border-cyan-200">
+                <label className="flex items-center gap-2 text-sm font-semibold text-cyan-800 mb-3">
+                    <span className="w-6 h-6 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-lg flex items-center justify-center text-white text-xs">📍</span>
+                    Region yang Diizinkan
+                </label>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                    {['All', 'Jakarta Selatan', 'Jakarta Pusat', 'Jakarta Utara', 'Jakarta Barat', 'Jakarta Timur', 'Bandung', 'Surabaya'].map((region) => {
+                        const isSelected = allowedRegions.includes(region);
+                        return (
+                            <button
+                                key={region}
+                                type="button"
+                                onClick={() => toggleRegion(region)}
+                                className={`relative rounded-xl p-3 border-2 transition-all ${
+                                    isSelected
+                                        ? 'border-cyan-500 bg-cyan-500 text-white shadow-lg'
+                                        : 'border-cyan-200 bg-white text-slate-700 hover:border-cyan-300 hover:shadow-md'
+                                }`}
+                            >
+                                <div className="flex items-center justify-center gap-2">
+                                    <span className="text-xs font-semibold">{region === 'All' ? '🌏 Semua' : region}</span>
+                                </div>
+                                {isSelected && (
+                                    <div className="absolute top-1 right-1 w-5 h-5 bg-white rounded-full flex items-center justify-center">
+                                        <span className="text-cyan-500 text-xs font-bold">✓</span>
+                                    </div>
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+                <p className="text-xs text-cyan-600 mt-3">💡 Pilih "Semua" untuk menu yang tersedia di seluruh region</p>
+            </div>
+
+            {/* Price Breakdown */}
+            {price && allowedStores.length > 0 && (
+                <div className="bg-gradient-to-br from-emerald-50 to-green-50 rounded-2xl p-5 border-2 border-emerald-200">
+                    <label className="flex items-center gap-2 text-sm font-semibold text-emerald-800 mb-3">
+                        <span className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-green-500 rounded-lg flex items-center justify-center text-white text-xs">🧾</span>
+                        Rincian Harga
+                    </label>
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-slate-600">Harga Dasar:</span>
+                            <span className="font-semibold text-slate-800">{formatCurrency(Number(price))}</span>
+                        </div>
+                        {hasServiceFee && (
+                            <div className="flex justify-between items-center text-sm">
+                                <span className="text-slate-600">Service Fee (5%):</span>
+                                <span className="font-semibold text-amber-600">{formatCurrency(Number(price) * 0.05)}</span>
+                            </div>
+                        )}
+                        <div className="flex justify-between items-center text-sm">
+                            <span className="text-slate-600">Pajak ({taxRate}%):</span>
+                            <span className="font-semibold text-slate-800">{formatCurrency(Number(price) * (taxRate / 100))}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-base pt-2 border-t-2 border-emerald-200">
+                            <span className="text-emerald-800 font-bold">Total Harga:</span>
+                            <span className="font-bold text-xl text-emerald-700">{formatCurrency(calculateFinalPrice())}</span>
+                        </div>
+                    </div>
+                    {hasServiceFee && (
+                        <div className="mt-3 flex items-start gap-2 p-3 bg-amber-100 rounded-xl">
+                            <span>💡</span>
+                            <p className="text-xs text-amber-700">Service fee 5% dikenakan untuk Dine-in dan Coffee Shop</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* Catatan untuk GM */}
             {isProposal && (
@@ -2333,7 +2527,10 @@ const App = () => {
           price: data.price,
           description: data.description,
           imageUrl: data.imageUrl,
-          allowedStores: ['Dine-in', 'Express'], // Default value
+          allowedStores: data.allowedStores,
+          allowedRegions: data.allowedRegions,
+          hasServiceFee: data.hasServiceFee,
+          taxRate: data.taxRate,
       };
       setMenus(prev => [...prev, newMenu]);
   };
@@ -2382,7 +2579,10 @@ const App = () => {
               price: approvedProposal.price,
               description: approvedProposal.description,
               imageUrl: approvedProposal.imageUrl,
-              allowedStores: ['Dine-in', 'Express'] // Default
+              allowedStores: ['Dine-in', 'Express'], // Default
+              allowedRegions: ['All'],
+              hasServiceFee: true, // Dine-in has service fee
+              taxRate: 10,
           };
           setMenus(prev => [...prev, newMenu]);
       }
