@@ -9,13 +9,13 @@ const DashboardIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h
 const MenuIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>;
 const ProposalIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>;
 const AnalyticsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18" /></svg>;
-const SettingsIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>;
+const TrendIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>;
 const LogoutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>;
 const CloseIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
 
 // --- TYPESCRIPT TYPES ---
 type UserRole = 'GM' | 'RM';
-type Page = 'Dashboard' | 'Menu Management' | 'Menu Proposals' | 'Analytics' | 'Settings';
+type Page = 'Dashboard' | 'Menu Management' | 'Menu Proposals' | 'Analytics' | 'Tren Makanan';
 type MenuCategory = 'Makanan' | 'Minuman' | 'Kopi' | 'Snack' | 'Minuman Instan';
 type StoreType = 'Dine-in' | 'Coffee Shop' | 'Express' | 'Snack Stall' | 'Drink Stall';
 type ProposalStatus = 'Pending' | 'Approved' | 'Rejected';
@@ -47,6 +47,7 @@ interface Proposal {
   price: number;
   imageUrl: string;
   rmNotes: string;
+  gmComment?: string; // Komentar dari GM saat review
   status: ProposalStatus;
     // Targeting & business rule metadata carried from RM proposal
     category: MenuCategory;
@@ -73,8 +74,8 @@ type MenuFormData = Omit<Menu, 'id'> & { rmNotes?: string };
 
 // --- MOCK DATA ---
 const USERS: Record<UserRole, User> = {
-  GM: { id: 1, name: 'Alex Johnson', role: 'GM' },
-  RM: { id: 2, name: 'Benny Carter', role: 'RM', region: 'Jakarta' },
+  GM: { id: 1, name: 'Muhammad Array', role: 'GM' },
+  RM: { id: 2, name: 'Dzaky Putra', role: 'RM', region: 'Jakarta' },
 };
 
 const MENUS_DATA: Menu[] = [
@@ -89,6 +90,13 @@ const PROPOSALS_DATA: Proposal[] = [
     { id: 1, menuName: 'Kopi Gula Aren', description: 'Kopi susu dengan pemanis gula aren asli.', price: 28000, imageUrl: 'https://images.unsplash.com/photo-1579888069124-4f4955b2d72b?auto=format&fit=crop&q=60&w=500', rmNotes: 'Sangat populer di kalangan anak muda Jakarta saat ini. Potensi sales tinggi.', status: 'Pending', category: 'Kopi', allowedStores: ['Coffee Shop', 'Dine-in'], allowedRegions: ['All'], hasServiceFee: true, taxRate: 10, proposer: { id: 2, name: 'Benny Carter', region: 'Jakarta' } },
     { id: 2, menuName: 'Soto Betawi', description: 'Soto khas Jakarta dengan kuah santan dan daging sapi.', price: 55000, imageUrl: 'https://images.unsplash.com/photo-1627891152229-285d03a11a32?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu otentik yang dapat menarik wisatawan dan penduduk lokal.', status: 'Approved', category: 'Makanan', allowedStores: ['Dine-in', 'Express'], allowedRegions: ['All'], hasServiceFee: true, taxRate: 10, proposer: { id: 3, name: 'Citra Dewi', region: 'Bandung' } },
     { id: 3, menuName: 'Cireng Bumbu Rujak', description: 'Camilan aci goreng dengan saus rujak pedas manis.', price: 22000, imageUrl: 'https://images.unsplash.com/photo-1629278282361-18579d57a5e9?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu ini tidak cocok dengan citra brand kita yang premium.', status: 'Rejected', category: 'Snack', allowedStores: ['Snack Stall', 'Dine-in', 'Express'], allowedRegions: ['All'], hasServiceFee: false, taxRate: 10, proposer: { id: 4, name: 'Dodi Hermawan', region: 'Surabaya' } },
+    { id: 4, menuName: 'Es Teh Manis Jumbo', description: 'Teh manis dingin dalam ukuran jumbo 500ml.', price: 12000, imageUrl: 'https://images.unsplash.com/photo-1556679343-c7a3b4dc8789?auto=format&fit=crop&q=60&w=500', rmNotes: 'Cocok untuk pelanggan yang haus saat cuaca panas. Margin keuntungan tinggi.', status: 'Pending', category: 'Minuman', allowedStores: ['Dine-in', 'Express', 'Coffee Shop'], allowedRegions: ['Jakarta'], hasServiceFee: false, taxRate: 10, proposer: { id: 2, name: 'Benny Carter', region: 'Jakarta' } },
+    { id: 5, menuName: 'Nasi Uduk Komplit', description: 'Nasi uduk dengan ayam goreng, telur, tempe, dan sambal.', price: 35000, imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu sarapan favorit di Jakarta. Permintaan tinggi di pagi hari.', status: 'Pending', category: 'Makanan', allowedStores: ['Dine-in', 'Express'], allowedRegions: ['Jakarta'], hasServiceFee: true, taxRate: 10, proposer: { id: 2, name: 'Benny Carter', region: 'Jakarta' } },
+    { id: 6, menuName: 'Cappuccino Vanilla', description: 'Cappuccino dengan sirup vanilla premium.', price: 32000, imageUrl: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?auto=format&fit=crop&q=60&w=500', rmNotes: 'Variasi menu kopi yang diminati pelanggan setia coffee shop.', status: 'Pending', category: 'Kopi', allowedStores: ['Coffee Shop', 'Dine-in'], allowedRegions: ['Bandung'], hasServiceFee: true, taxRate: 10, proposer: { id: 3, name: 'Citra Dewi', region: 'Bandung' } },
+    { id: 7, menuName: 'Pisang Goreng Keju', description: 'Pisang goreng crispy dengan taburan keju parut.', price: 18000, imageUrl: 'https://images.unsplash.com/photo-1587241321921-91ced6d6320b?auto=format&fit=crop&q=60&w=500', rmNotes: 'Snack favorit untuk teman ngopi. Mudah dibuat dan cepat laku.', status: 'Pending', category: 'Snack', allowedStores: ['Snack Stall', 'Dine-in', 'Coffee Shop'], allowedRegions: ['All'], hasServiceFee: false, taxRate: 10, proposer: { id: 5, name: 'Eko Prasetyo', region: 'Surabaya' } },
+    { id: 8, menuName: 'Jus Alpukat Spesial', description: 'Jus alpukat dengan susu coklat dan topping es krim.', price: 25000, imageUrl: 'https://images.unsplash.com/photo-1623428187969-5da2dcea5ebf?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu sehat dan menyegarkan. Potensi best seller di musim panas.', status: 'Pending', category: 'Minuman', allowedStores: ['Dine-in', 'Coffee Shop'], allowedRegions: ['Surabaya'], hasServiceFee: true, taxRate: 10, proposer: { id: 5, name: 'Eko Prasetyo', region: 'Surabaya' } },
+    { id: 9, menuName: 'Mie Goreng Jawa', description: 'Mie goreng dengan bumbu khas Jawa, dilengkapi telur mata sapi.', price: 38000, imageUrl: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?auto=format&fit=crop&q=60&w=500', rmNotes: 'Menu khas yang sudah teruji di market Semarang. Repeat order tinggi.', status: 'Pending', category: 'Makanan', allowedStores: ['Dine-in', 'Express'], allowedRegions: ['Semarang'], hasServiceFee: true, taxRate: 10, proposer: { id: 6, name: 'Fitri Handayani', region: 'Semarang' } },
+    { id: 10, menuName: 'Teh Tarik Susu', description: 'Teh susu khas dengan teknik tarik yang menghasilkan foam lembut.', price: 20000, imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?auto=format&fit=crop&q=60&w=500', rmNotes: 'Minuman signature yang bisa menjadi ciri khas outlet kita.', status: 'Pending', category: 'Minuman', allowedStores: ['Dine-in', 'Coffee Shop', 'Drink Stall'], allowedRegions: ['All'], hasServiceFee: false, taxRate: 10, proposer: { id: 7, name: 'Gilang Ramadhan', region: 'Medan' } },
 ];
 
 const MOCK_PROFIT_DATA: Record<string, AnalyticsDataPoint[]> = {
@@ -107,8 +115,8 @@ const formatCurrency = (amount: number) => new Intl.NumberFormat('id-ID', { styl
 
 // --- REUSABLE UI COMPONENTS ---
 const Sidebar: FC<{ userRole: UserRole, currentPage: Page, setPage: (page: Page) => void, onLogout: () => void }> = ({ userRole, currentPage, setPage, onLogout }) => {
-  const gmNav = ['Dashboard', 'Menu Management', 'Menu Proposals', 'Analytics', 'Settings'];
-  const rmNav = ['Dashboard', 'Menu Proposals', 'Analytics', 'Settings'];
+  const gmNav = ['Dashboard', 'Menu Management', 'Menu Proposals', 'Analytics', 'Tren Makanan'];
+  const rmNav = ['Dashboard', 'Menu Proposals', 'Analytics', 'Tren Makanan'];
   const navItems = userRole === 'GM' ? gmNav : rmNav;
 
   const NavLink: FC<{ name: Page, icon: React.ReactElement }> = ({ name, icon }) => (
@@ -143,7 +151,7 @@ const Sidebar: FC<{ userRole: UserRole, currentPage: Page, setPage: (page: Page)
         {userRole === 'GM' && <NavLink name="Menu Management" icon={<MenuIcon />} />}
         <NavLink name="Menu Proposals" icon={<ProposalIcon />} />
         <NavLink name="Analytics" icon={<AnalyticsIcon />} />
-        <NavLink name="Settings" icon={<SettingsIcon />} />
+        <NavLink name="Tren Makanan" icon={<TrendIcon />} />
       </nav>
       <div className="pt-6 border-t border-slate-700/50">
         <button onClick={onLogout} className="flex items-center w-full px-4 py-3 text-left text-slate-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 rounded-xl group">
@@ -963,21 +971,17 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
     const [editingMenu, setEditingMenu] = useState<Menu | null>(null);
     const [animated, setAnimated] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedCategory, setSelectedCategory] = useState<string>('Semua');
     const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
     useEffect(() => {
         const timer = setTimeout(() => setAnimated(true), 100);
         return () => clearTimeout(timer);
     }, []);
-
-    const categories = ['Semua', ...Array.from(new Set(menus.map(m => m.category)))];
     
     const filteredMenus = menus.filter(menu => {
         const matchesSearch = menu.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                             menu.description.toLowerCase().includes(searchQuery.toLowerCase());
-        const matchesCategory = selectedCategory === 'Semua' || menu.category === selectedCategory;
-        return matchesSearch && matchesCategory;
+        return matchesSearch;
     });
 
     const openAddModal = () => {
@@ -1083,10 +1087,6 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
                                     <span className="text-2xl font-bold">{menus.length}</span>
                                     <span className="text-sm text-purple-100">Total Menu</span>
                                 </div>
-                                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm rounded-xl px-4 py-2">
-                                    <span className="text-2xl font-bold">{categories.length - 1}</span>
-                                    <span className="text-sm text-purple-100">Kategori</span>
-                                </div>
                             </div>
                         </div>
                         <button 
@@ -1102,16 +1102,16 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
                 </div>
             </div>
 
-            {/* Search & Filter Bar */}
+            {/* Search & View Controls */}
             <div 
                 className="bg-white rounded-2xl shadow-sm border border-slate-100 p-4"
                 style={{
                     opacity: animated ? 1 : 0,
                     transform: animated ? 'translateY(0)' : 'translateY(20px)',
-                    transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s'
+                    transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s'
                 }}
             >
-                <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
+                <div className="flex flex-col md:flex-row items-stretch md:items-center gap-4">
                     {/* Search Input */}
                     <div className="flex-1 relative">
                         <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1119,28 +1119,18 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
                         </svg>
                         <input
                             type="text"
-                            placeholder="Cari menu..."
+                            placeholder="Cari nama menu atau deskripsi..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-12 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                         />
                     </div>
-                    
-                    {/* Category Filter */}
-                    <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0">
-                        {categories.map((cat) => (
-                            <button
-                                key={cat}
-                                onClick={() => setSelectedCategory(cat)}
-                                className={`px-4 py-2.5 text-sm font-medium rounded-xl whitespace-nowrap transition-all ${
-                                    selectedCategory === cat 
-                                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/25' 
-                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                }`}
-                            >
-                                {cat}
-                            </button>
-                        ))}
+
+                    {/* Results Count */}
+                    <div className="flex items-center gap-3 px-4 py-3 bg-slate-50 rounded-xl">
+                        <span className="text-sm text-slate-500">Menampilkan</span>
+                        <span className="text-lg font-bold text-purple-600">{filteredMenus.length}</span>
+                        <span className="text-sm text-slate-500">menu</span>
                     </div>
 
                     {/* View Toggle */}
@@ -1148,6 +1138,7 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
                         <button
                             onClick={() => setViewMode('grid')}
                             className={`p-2.5 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-white shadow-sm text-purple-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            title="Grid View"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
@@ -1156,6 +1147,7 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
                         <button
                             onClick={() => setViewMode('list')}
                             className={`p-2.5 rounded-lg transition-all ${viewMode === 'list' ? 'bg-white shadow-sm text-purple-600' : 'text-slate-500 hover:text-slate-700'}`}
+                            title="List View"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -1180,7 +1172,7 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
                         </svg>
                     </div>
                     <h3 className="text-xl font-semibold text-slate-800">Menu Tidak Ditemukan</h3>
-                    <p className="text-slate-500 mt-2">Coba ubah filter atau kata kunci pencarian</p>
+                    <p className="text-slate-500 mt-2">Coba ubah kata kunci pencarian</p>
                 </div>
             ) : viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -1229,11 +1221,12 @@ const MenuManagementPage: FC<{ menus: Menu[], showToast: (msg: string) => void, 
     );
 };
 
-const MenuProposalsPage: FC<{ user: User; proposals: Proposal[]; showToast: (msg: string) => void; onAddProposal: (data: MenuFormData) => void; onUpdateStatus: (id: number, status: ProposalStatus) => void; }> = ({ user, proposals, showToast, onAddProposal, onUpdateStatus }) => {
+const MenuProposalsPage: FC<{ user: User; proposals: Proposal[]; showToast: (msg: string) => void; onAddProposal: (data: MenuFormData) => void; onUpdateStatus: (id: number, status: ProposalStatus, comment?: string) => void; }> = ({ user, proposals, showToast, onAddProposal, onUpdateStatus }) => {
     const [selectedProposal, setSelectedProposal] = useState<Proposal | null>(null);
     const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
     const [animated, setAnimated] = useState(false);
     const [filterStatus, setFilterStatus] = useState<ProposalStatus | 'All'>('All');
+    const [gmComment, setGmComment] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => setAnimated(true), 100);
@@ -1258,8 +1251,9 @@ const MenuProposalsPage: FC<{ user: User; proposals: Proposal[]; showToast: (msg
     
     const handleStatusUpdate = (status: ProposalStatus) => {
         if (selectedProposal) {
-            onUpdateStatus(selectedProposal.id, status);
+            onUpdateStatus(selectedProposal.id, status, gmComment);
             setSelectedProposal(null);
+            setGmComment('');
             showToast(`Proposal telah ${status === 'Approved' ? 'disetujui' : 'ditolak'}.`);
         }
     };
@@ -1503,8 +1497,28 @@ const MenuProposalsPage: FC<{ user: User; proposals: Proposal[]; showToast: (msg
                            <p className="text-slate-700 italic">"{selectedProposal.rmNotes}"</p>
                         </div>
                         
+                        {selectedProposal.gmComment && (
+                            <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                                <p className="text-xs text-blue-600 uppercase font-medium mb-2">💼 Komentar GM</p>
+                                <p className="text-slate-700 italic">"{selectedProposal.gmComment}"</p>
+                            </div>
+                        )}
+                        
                         {user.role === 'GM' && selectedProposal.status === 'Pending' && (
-                            <div className="flex justify-end gap-3 pt-5 border-t border-slate-100">
+                            <div className="space-y-4">
+                                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
+                                    <label className="block text-xs text-slate-600 uppercase font-medium mb-2">
+                                        💬 Komentar Review (Opsional)
+                                    </label>
+                                    <textarea
+                                        value={gmComment}
+                                        onChange={(e) => setGmComment(e.target.value)}
+                                        placeholder="Berikan komentar atau catatan untuk proposal ini..."
+                                        className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500 transition-all resize-none bg-white"
+                                        rows={3}
+                                    />
+                                </div>
+                                <div className="flex justify-end gap-3 pt-3 border-t border-slate-100">
                                 <button 
                                     onClick={() => handleStatusUpdate('Rejected')} 
                                     className="px-6 py-3 text-sm font-medium text-red-600 bg-red-100 rounded-xl hover:bg-red-200 transition-all flex items-center gap-2"
@@ -1517,6 +1531,7 @@ const MenuProposalsPage: FC<{ user: User; proposals: Proposal[]; showToast: (msg
                                 >
                                     <span>✅</span> Setujui
                                 </button>
+                                </div>
                             </div>
                         )}
                     </div>
@@ -1532,15 +1547,125 @@ const MenuProposalsPage: FC<{ user: User; proposals: Proposal[]; showToast: (msg
 
 const AnalyticsPage: FC<{ user: User }> = ({ user }) => {
     const [mode, setMode] = useState<'Profit' | 'Trend'>('Profit');
-    const [timeline, setTimeline] = useState<'Weekly' | 'Monthly' | 'Yearly'>('Monthly');
+    const [timeline, setTimeline] = useState<'Weekly' | 'Monthly' | 'Yearly' | 'Custom'>('Monthly');
     const [trendType, setTrendType] = useState<'best' | 'worst'>('best');
     const [compare, setCompare] = useState(false);
     const [selectedMenu1, setSelectedMenu1] = useState('Nasi Goreng Spesial');
     const [selectedMenu2, setSelectedMenu2] = useState('Americano');
     const [timeRange, setTimeRange] = useState<'7days' | '30days' | '90days'>('30days');
 
-    const profitData = MOCK_PROFIT_DATA[timeline];
+    const [selectedRegion, setSelectedRegion] = useState<string>('Semua');
+    const [selectedCabang, setSelectedCabang] = useState<string>('Semua');
+    const [selectedOutlet, setSelectedOutlet] = useState<string>('Semua');
+
+    const formatLocalDate = (date: Date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    const parseLocalDate = (value: string) => {
+        const [y, m, d] = value.split('-').map(Number);
+        return new Date(y, (m || 1) - 1, d || 1);
+    };
+
+    const addDays = (date: Date, days: number) => {
+        const copy = new Date(date);
+        copy.setDate(copy.getDate() + days);
+        return copy;
+    };
+
+    const diffDaysInclusive = (start: string, end: string) => {
+        const s = parseLocalDate(start);
+        const e = parseLocalDate(end);
+        const ms = e.getTime() - s.getTime();
+        const days = Math.floor(ms / (1000 * 60 * 60 * 24)) + 1;
+        return Math.max(1, days);
+    };
+
+    const today = new Date();
+    const defaultStart = addDays(today, -29);
+    const [profitStart1, setProfitStart1] = useState<string>(() => formatLocalDate(defaultStart));
+    const [profitEnd1, setProfitEnd1] = useState<string>(() => formatLocalDate(today));
+    const [profitStart2, setProfitStart2] = useState<string>(() => formatLocalDate(addDays(defaultStart, -30)));
+
+    useEffect(() => {
+        // jaga agar end >= start
+        if (profitEnd1 < profitStart1) setProfitEnd1(profitStart1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [profitStart1]);
+
+    const durationDays = diffDaysInclusive(profitStart1, profitEnd1);
+    const profitEnd2 = formatLocalDate(addDays(parseLocalDate(profitStart2), durationDays - 1));
+
+    useEffect(() => {
+        // saat compare aktif, pastikan range 2 valid dan durasinya sama (end2 derived)
+        if (!compare) return;
+        // jika user memilih start2 setelah end1, tetap boleh; end2 akan dihitung
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [compare, profitStart2, durationDays]);
+
+    const seededSeries = (seedText: string, count: number) => {
+        let seed = 0;
+        for (let i = 0; i < seedText.length; i++) seed = (seed * 31 + seedText.charCodeAt(i)) >>> 0;
+        let state = seed || 123456789;
+        const next = () => {
+            state = (1664525 * state + 1013904223) >>> 0;
+            return state / 0xffffffff;
+        };
+        return Array.from({ length: count }, () => next());
+    };
+
+    const buildCustomProfitData = (start: string, end: string, seed: string): AnalyticsDataPoint[] => {
+        const days = diffDaysInclusive(start, end);
+        const points = days <= 14 ? days : days <= 90 ? Math.min(12, Math.ceil(days / 7)) : Math.min(12, Math.ceil(days / 30));
+        const labels = Array.from({ length: points }, (_, i) => `P${i + 1}`);
+        const noise = seededSeries(`${seed}-${start}-${end}`, points);
+        const base = 120;
+        return labels.map((label, idx) => {
+            const drift = (idx / Math.max(points - 1, 1)) * 0.18;
+            const jitter = (noise[idx] - 0.5) * 0.22;
+            const factor = Math.max(0.25, 0.78 + drift + jitter);
+            return { label, value: Math.round(base * factor) };
+        });
+    };
+
+    const profitData = timeline === 'Custom'
+        ? buildCustomProfitData(profitStart1, profitEnd1, 'profit-range-1')
+        : MOCK_PROFIT_DATA[timeline];
+
+    const compareProfitData = timeline === 'Custom'
+        ? buildCustomProfitData(profitStart2, profitEnd2, 'profit-range-2')
+        : profitData.map((d, i) => ({ ...d, value: Math.round(d.value * (0.82 + seededSeries(`profit-prev-${timeline}`, profitData.length)[i] * 0.2)) }));
     const trendData = MOCK_TREND_DATA[trendType];
+
+    // Data region dan cabang yang sesuai
+    const regionCabangMap: Record<string, string[]> = {
+        'Yogyakarta': ['Sleman', 'Bantul', 'Kulon Progo', 'Gunungkidul', 'Kota Yogyakarta'],
+        'Jakarta': ['Jakarta Selatan', 'Jakarta Pusat', 'Jakarta Utara', 'Jakarta Barat', 'Jakarta Timur'],
+        'Bandung': ['Bandung Utara', 'Bandung Selatan', 'Bandung Barat', 'Bandung Timur', 'Cimahi'],
+        'Surabaya': ['Surabaya Pusat', 'Surabaya Utara', 'Surabaya Selatan', 'Surabaya Barat', 'Surabaya Timur'],
+        'Semarang': ['Semarang Tengah', 'Semarang Utara', 'Semarang Selatan', 'Semarang Barat', 'Semarang Timur'],
+        'Medan': ['Medan Kota', 'Medan Petisah', 'Medan Barat', 'Medan Timur', 'Medan Utara'],
+        'Bali': ['Denpasar', 'Badung', 'Gianyar', 'Tabanan', 'Kuta'],
+    };
+
+    const availableCabang = selectedRegion !== 'Semua' && regionCabangMap[selectedRegion]
+        ? regionCabangMap[selectedRegion]
+        : [];
+
+    // Reset cabang when region changes
+    useEffect(() => {
+        if (selectedRegion === 'Semua') {
+            setSelectedCabang('Semua');
+        } else if (availableCabang.length > 0 && selectedCabang !== 'Semua' && !availableCabang.includes(selectedCabang)) {
+            setSelectedCabang('Semua');
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedRegion]);
+
+    const hasActiveFilters = selectedRegion !== 'Semua' || selectedCabang !== 'Semua' || selectedOutlet !== 'Semua';
     
     // Mock data untuk perbandingan menu
     const availableMenus = [
@@ -1575,6 +1700,8 @@ const AnalyticsPage: FC<{ user: User }> = ({ user }) => {
             {label}
         </button>
     );
+
+    const timelineLabel = timeline === 'Weekly' ? 'Mingguan' : timeline === 'Monthly' ? 'Bulanan' : timeline === 'Yearly' ? 'Tahunan' : 'Kisaran Waktu';
 
     const ChartContainer: FC<PropsWithChildren<{ title: string; insight: string }>> = ({ title, insight, children }) => (
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -1936,11 +2063,64 @@ const AnalyticsPage: FC<{ user: User }> = ({ user }) => {
                 </div>
                 
                 {mode === 'Profit' && (
-                    <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-slate-500 mr-2">Periode:</span>
-                        <FilterButton label="Mingguan" active={timeline === 'Weekly'} onClick={() => setTimeline('Weekly')} />
-                        <FilterButton label="Bulanan" active={timeline === 'Monthly'} onClick={() => setTimeline('Monthly')} />
-                        <FilterButton label="Tahunan" active={timeline === 'Yearly'} onClick={() => setTimeline('Yearly')} />
+                    <div className="flex flex-col gap-3">
+                        <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium text-slate-500 mr-2">Periode:</span>
+                            <FilterButton label="Mingguan" active={timeline === 'Weekly'} onClick={() => setTimeline('Weekly')} />
+                            <FilterButton label="Bulanan" active={timeline === 'Monthly'} onClick={() => setTimeline('Monthly')} />
+                            <FilterButton label="Tahunan" active={timeline === 'Yearly'} onClick={() => setTimeline('Yearly')} />
+                            <FilterButton label="Kisaran" active={timeline === 'Custom'} onClick={() => setTimeline('Custom')} />
+                        </div>
+
+                        {timeline === 'Custom' && (
+                            <div className="flex flex-wrap items-end gap-3">
+                                <div>
+                                    <label className="block text-[11px] font-medium text-slate-500 mb-1">Mulai</label>
+                                    <input
+                                        type="date"
+                                        value={profitStart1}
+                                        onChange={(e) => setProfitStart1(e.target.value)}
+                                        className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] font-medium text-slate-500 mb-1">Selesai</label>
+                                    <input
+                                        type="date"
+                                        value={profitEnd1}
+                                        onChange={(e) => setProfitEnd1(e.target.value)}
+                                        className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                                    />
+                                </div>
+
+                                {compare && (
+                                    <div className="flex flex-wrap items-end gap-3">
+                                        <div className="h-10 w-px bg-slate-200 mx-1 hidden md:block" />
+                                        <div>
+                                            <label className="block text-[11px] font-medium text-slate-500 mb-1">Mulai (Bandingkan)</label>
+                                            <input
+                                                type="date"
+                                                value={profitStart2}
+                                                onChange={(e) => setProfitStart2(e.target.value)}
+                                                className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-[11px] font-medium text-slate-500 mb-1">Selesai (Auto)</label>
+                                            <input
+                                                type="date"
+                                                value={profitEnd2}
+                                                disabled
+                                                className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-500 cursor-not-allowed"
+                                            />
+                                        </div>
+                                        <div className="text-[11px] text-slate-500 pb-1">
+                                            Durasi sama: <span className="font-medium text-slate-700">{durationDays} hari</span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -1958,6 +2138,102 @@ const AnalyticsPage: FC<{ user: User }> = ({ user }) => {
                         <span className={`inline-block w-5 h-5 transform bg-white rounded-full shadow transition-transform duration-200 ${compare ? 'translate-x-6' : 'translate-x-1'}`} />
                     </button>
                 </div>
+            </div>
+
+            {/* Filter Menu (dipindahkan dari Menu Management) */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-semibold text-slate-800 flex items-center gap-2">
+                        <span>🔍</span> Filter Menu
+                    </h4>
+                    {hasActiveFilters && (
+                        <button
+                            onClick={() => {
+                                setSelectedRegion('Semua');
+                                setSelectedCabang('Semua');
+                                setSelectedOutlet('Semua');
+                            }}
+                            className="text-xs text-red-600 hover:text-red-700 font-medium"
+                        >
+                            Reset Filter
+                        </button>
+                    )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-2">Region</label>
+                        <select
+                            value={selectedRegion}
+                            onChange={(e) => setSelectedRegion(e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 transition-colors"
+                        >
+                            <option value="Semua">Semua Region</option>
+                            <option value="Yogyakarta">Yogyakarta</option>
+                            <option value="Jakarta">Jakarta</option>
+                            <option value="Bandung">Bandung</option>
+                            <option value="Surabaya">Surabaya</option>
+                            <option value="Semarang">Semarang</option>
+                            <option value="Medan">Medan</option>
+                            <option value="Bali">Bali</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-2">Cabang</label>
+                        <select
+                            value={selectedCabang}
+                            onChange={(e) => setSelectedCabang(e.target.value)}
+                            disabled={selectedRegion === 'Semua'}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 transition-colors disabled:bg-slate-50 disabled:cursor-not-allowed"
+                        >
+                            <option value="Semua">Semua Cabang</option>
+                            {availableCabang.map((cabang) => (
+                                <option key={cabang} value={cabang}>{cabang}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-2">Outlet</label>
+                        <select
+                            value={selectedOutlet}
+                            onChange={(e) => setSelectedOutlet(e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 transition-colors"
+                        >
+                            <option value="Semua">Semua Outlet</option>
+                            <option value="Dine-in">Dine-in</option>
+                            <option value="Coffee Shop">Coffee Shop</option>
+                            <option value="Express">Express</option>
+                            <option value="Snack Stall">Snack Stall</option>
+                            <option value="Drink Stall">Drink Stall</option>
+                        </select>
+                    </div>
+                </div>
+
+                {hasActiveFilters && (
+                    <div className="mt-4 pt-4 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+                        <span className="text-xs text-slate-500">Filter aktif:</span>
+                        {selectedRegion !== 'Semua' && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
+                                Region: {selectedRegion}
+                                <button onClick={() => setSelectedRegion('Semua')} className="hover:text-red-600">×</button>
+                            </span>
+                        )}
+                        {selectedCabang !== 'Semua' && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
+                                Cabang: {selectedCabang}
+                                <button onClick={() => setSelectedCabang('Semua')} className="hover:text-red-600">×</button>
+                            </span>
+                        )}
+                        {selectedOutlet !== 'Semua' && (
+                            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
+                                Outlet: {selectedOutlet}
+                                <button onClick={() => setSelectedOutlet('Semua')} className="hover:text-red-600">×</button>
+                            </span>
+                        )}
+                    </div>
+                )}
             </div>
 
             {/* Menu Comparison Controls - Tampil hanya saat mode Trend dan compare aktif */}
@@ -2035,12 +2311,12 @@ const AnalyticsPage: FC<{ user: User }> = ({ user }) => {
             <div className={`grid gap-6 ${compare && mode === 'Trend' ? 'grid-cols-1' : compare ? 'grid-cols-1 lg:grid-cols-2' : 'grid-cols-1'}`}>
                 {mode === 'Profit' ? (
                     <>
-                        <ChartContainer title={`📈 Trend Profit (${timeline === 'Weekly' ? 'Mingguan' : timeline === 'Monthly' ? 'Bulanan' : 'Tahunan'})`} insight="Profit naik 5.2% periode ini.">
+                        <ChartContainer title={`📈 Trend Profit (${timelineLabel})`} insight="Profit naik 5.2% periode ini.">
                             <LineChart data={profitData} />
                         </ChartContainer>
                         {compare && (
                              <ChartContainer title={`📊 Perbandingan Periode Sebelumnya`} insight="Data periode perbandingan.">
-                                <LineChart data={profitData.map(d => ({...d, value: d.value * (0.8 + Math.random() * 0.2)}))} color="#f59e0b" />
+                                <LineChart data={compareProfitData} color="#f59e0b" />
                              </ChartContainer>
                         )}
                     </>
@@ -2190,35 +2466,164 @@ const AnalyticsPage: FC<{ user: User }> = ({ user }) => {
     );
 };
 
-const SettingsPage: FC = () => {
+const TrenMakananPage: FC = () => {
     const [animated, setAnimated] = useState(false);
-    const [activeTab, setActiveTab] = useState<'profile' | 'notifications' | 'appearance' | 'security'>('profile');
-    const [notifications, setNotifications] = useState({
-        email: true,
-        push: true,
-        sms: false,
-        weekly: true,
-    });
-    const [darkMode, setDarkMode] = useState(false);
+    const [selectedKategori, setSelectedKategori] = useState<string>('Semua');
+    const [selectedBentuk, setSelectedBentuk] = useState<string>('Semua');
+    const [selectedRegion, setSelectedRegion] = useState<string>('Semua');
+    const [periode, setPeriode] = useState<'Mingguan' | 'Bulanan' | 'Tahunan' | 'Custom'>('Bulanan');
+    const [kategoriTren, setKategoriTren] = useState<'Laris' | 'Kurang Laris'>('Laris');
+    const [showComparison, setShowComparison] = useState(false);
+    const [compareMenu1, setCompareMenu1] = useState<string>('Kopi Gula Aren');
+    const [compareMenu2, setCompareMenu2] = useState<string>('Nasi Goreng');
+
+    const formatLocalDate = (date: Date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    const parseLocalDate = (value: string) => {
+        const [y, m, d] = value.split('-').map(Number);
+        return new Date(y, (m || 1) - 1, d || 1);
+    };
+
+    const addDays = (date: Date, days: number) => {
+        const copy = new Date(date);
+        copy.setDate(copy.getDate() + days);
+        return copy;
+    };
+
+    const diffDaysInclusive = (start: string, end: string) => {
+        const s = parseLocalDate(start);
+        const e = parseLocalDate(end);
+        const ms = e.getTime() - s.getTime();
+        const days = Math.floor(ms / (1000 * 60 * 60 * 24)) + 1;
+        return Math.max(1, days);
+    };
+
+    const today = new Date();
+    const defaultStart = addDays(today, -29);
+    const [trendStart1, setTrendStart1] = useState<string>(() => formatLocalDate(defaultStart));
+    const [trendEnd1, setTrendEnd1] = useState<string>(() => formatLocalDate(today));
+    const [trendStart2, setTrendStart2] = useState<string>(() => formatLocalDate(addDays(defaultStart, -30)));
+
+    useEffect(() => {
+        if (trendEnd1 < trendStart1) setTrendEnd1(trendStart1);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [trendStart1]);
 
     useEffect(() => {
         const timer = setTimeout(() => setAnimated(true), 100);
         return () => clearTimeout(timer);
     }, []);
 
-    const tabs = [
-        { id: 'profile' as const, label: 'Profil', icon: '👤' },
-        { id: 'notifications' as const, label: 'Notifikasi', icon: '🔔' },
-        { id: 'appearance' as const, label: 'Tampilan', icon: '🎨' },
-        { id: 'security' as const, label: 'Keamanan', icon: '🔒' },
+    // Mock data tren makanan
+    const trendingMenus = [
+        { name: 'Kopi Gula Aren', sales: 850, category: 'Minuman', region: 'Jakarta' },
+        { name: 'Nasi Goreng', sales: 720, category: 'Makanan', region: 'Bandung' },
+        { name: 'Dzaky Putra', sales: 680, category: 'Makanan', region: 'Yogyakarta', highlighted: true },
+        { name: 'Mie Ayam', sales: 620, category: 'Makanan', region: 'Surabaya' },
+        { name: 'Coca Cola', sales: 590, category: 'Minuman', region: 'Jakarta' },
+        { name: 'Lemon Tea', sales: 540, category: 'Minuman', region: 'Bali' },
     ];
 
-    const ToggleSwitch: FC<{ enabled: boolean; onChange: () => void }> = ({ enabled, onChange }) => (
-        <button 
-            onClick={onChange}
-            className={`relative inline-flex items-center h-7 rounded-full w-12 transition-all duration-200 ${enabled ? 'bg-gradient-to-r from-purple-600 to-blue-600' : 'bg-slate-300'}`}
+    const maxSales = Math.max(...trendingMenus.map(m => m.sales), 1);
+
+    const durationDays = diffDaysInclusive(trendStart1, trendEnd1);
+    const trendEnd2 = formatLocalDate(addDays(parseLocalDate(trendStart2), durationDays - 1));
+
+    useEffect(() => {
+        // Pastikan GM membandingkan 2 menu berbeda
+        if (compareMenu1 === compareMenu2) {
+            const fallback = trendingMenus.find(m => m.name !== compareMenu1)?.name;
+            if (fallback) setCompareMenu2(fallback);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [compareMenu1]);
+
+    const getTimeLabels = (p: typeof periode, start?: string, end?: string) => {
+        if (p === 'Mingguan') return Array.from({ length: 7 }, (_, i) => `H${i + 1}`);
+        if (p === 'Bulanan') return Array.from({ length: 12 }, (_, i) => `B${i + 1}`);
+        if (p === 'Tahunan') return ['T1', 'T2', 'T3', 'T4', 'T5'];
+
+        // Custom: bikin titik berdasarkan durasi, supaya tetap ringkas dan mudah dibandingkan
+        const days = start && end ? diffDaysInclusive(start, end) : 30;
+        const points = days <= 14 ? days : days <= 90 ? Math.min(12, Math.ceil(days / 7)) : Math.min(12, Math.ceil(days / 30));
+        return Array.from({ length: points }, (_, i) => `P${i + 1}`);
+    };
+
+    const seededSeries = (seedText: string, count: number) => {
+        // Simple deterministic PRNG (LCG) supaya grafik stabil (tidak berubah-ubah tiap render)
+        let seed = 0;
+        for (let i = 0; i < seedText.length; i++) seed = (seed * 31 + seedText.charCodeAt(i)) >>> 0;
+        let state = seed || 123456789;
+        const next = () => {
+            state = (1664525 * state + 1013904223) >>> 0;
+            return state / 0xffffffff;
+        };
+        return Array.from({ length: count }, () => next());
+    };
+
+    const buildMenuTrend = (menuName: string, start?: string, end?: string) => {
+        const base = trendingMenus.find(m => m.name === menuName)?.sales ?? 500;
+        const labels = periode === 'Custom' ? getTimeLabels(periode, start, end) : getTimeLabels(periode);
+        const noise = seededSeries(`${menuName}-${periode}-${kategoriTren}-${start ?? ''}-${end ?? ''}`, labels.length);
+        // Buat trend sederhana: naik/turun sedikit + noise
+        return labels.map((label, idx) => {
+            const drift = (idx / Math.max(labels.length - 1, 1)) * 0.18; // 0..18%
+            const jitter = (noise[idx] - 0.5) * 0.22; // -11%..+11%
+            const factor = Math.max(0.25, 0.78 + drift + jitter);
+            return { label, value: Math.round(base * factor) };
+        });
+    };
+
+    const MiniBarChart: FC<{ title: string; data: { label: string; value: number }[] }> = ({ title, data }) => {
+        const maxValue = Math.max(...data.map(d => d.value), 1);
+        return (
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <h5 className="font-semibold text-slate-800 mb-4">{title}</h5>
+                <div className="bg-slate-100 rounded-2xl p-4">
+                    <div className="relative flex items-end justify-between gap-2 h-56">
+                        <div className="absolute left-0 right-0 bottom-0 h-px bg-slate-300" />
+                        {data.map((d, i) => (
+                            <div key={d.label} className="relative flex-1 h-full">
+                                <div
+                                    className="absolute left-0 right-0 text-[11px] font-medium text-slate-500 text-center"
+                                    style={{
+                                        bottom: `${(d.value / maxValue) * 100}%`,
+                                        transform: 'translateY(-6px)'
+                                    }}
+                                >
+                                    {d.value}
+                                </div>
+                                <div className="absolute inset-x-0 bottom-0 h-full">
+                                    <div
+                                        className="absolute inset-x-0 bottom-0 bg-slate-300 rounded-sm"
+                                        style={{
+                                            height: animated ? `${(d.value / maxValue) * 100}%` : '0%',
+                                            transition: `height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${i * 0.06}s`
+                                        }}
+                                    />
+                                </div>
+                                <div className="absolute left-0 right-0 -bottom-6 text-[11px] text-slate-500 text-center">
+                                    {d.label}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    const FilterButton: FC<{ label: string; active: boolean; onClick: () => void; }> = ({ label, active, onClick }) => (
+        <button
+            onClick={onClick}
+            className={`px-4 py-2 text-sm rounded-xl transition-all duration-200 font-medium ${active ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/25' : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200'}`}
         >
-            <span className={`inline-block w-5 h-5 transform bg-white rounded-full shadow transition-transform duration-200 ${enabled ? 'translate-x-6' : 'translate-x-1'}`} />
+            {label}
         </button>
     );
 
@@ -2226,267 +2631,257 @@ const SettingsPage: FC = () => {
         <div className="p-6 lg:p-8 space-y-6">
             {/* Header Banner */}
             <div 
-                className="relative overflow-hidden bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900 rounded-3xl p-8 text-white"
+                className="relative overflow-hidden bg-gradient-to-br from-orange-500 via-red-500 to-pink-600 rounded-3xl p-8 text-white"
                 style={{
                     opacity: animated ? 1 : 0,
                     transform: animated ? 'translateY(0)' : 'translateY(-20px)',
                     transition: 'all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)'
                 }}
             >
-                <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
-                <div className="absolute bottom-0 left-0 w-60 h-60 bg-blue-500/20 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
+                <div className="absolute top-0 right-0 w-80 h-80 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3" />
+                <div className="absolute bottom-0 left-0 w-60 h-60 bg-yellow-400/30 rounded-full blur-3xl translate-y-1/2 -translate-x-1/3" />
                 
                 <div className="relative z-10 flex items-center gap-6">
-                    <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-purple-500/30">
-                        ⚙️
+                    <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-orange-500/30">
+                        🔥
                     </div>
                     <div>
-                        <h3 className="text-3xl font-bold">Pengaturan</h3>
-                        <p className="text-slate-300 mt-1">Kelola profil, notifikasi, dan preferensi aplikasi Anda</p>
+                        <h3 className="text-3xl font-bold">Tren Makanan</h3>
+                        <p className="text-orange-100 mt-1">Pantau menu terlaris dan tren penjualan di seluruh outlet</p>
                     </div>
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                {/* Sidebar Tabs */}
-                <div 
-                    className="bg-white rounded-2xl shadow-sm border border-slate-100 p-3 lg:col-span-1"
-                    style={{
-                        opacity: animated ? 1 : 0,
-                        transform: animated ? 'translateX(0)' : 'translateX(-20px)',
-                        transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s'
-                    }}
-                >
-                    <div className="space-y-2">
-                        {tabs.map((tab) => (
-                            <button
-                                key={tab.id}
-                                onClick={() => setActiveTab(tab.id)}
-                                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
-                                    activeTab === tab.id
-                                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg shadow-purple-500/25'
-                                        : 'text-slate-600 hover:bg-slate-100'
-                                }`}
-                            >
-                                <span className="text-xl">{tab.icon}</span>
-                                <span className="font-medium">{tab.label}</span>
-                            </button>
-                        ))}
+            {/* Filter Section */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <h4 className="font-semibold text-slate-800 flex items-center gap-2 mb-4">
+                    <span>🔍</span> Filter
+                </h4>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Filter Kategori */}
+                    <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-2">Kategori</label>
+                        <select
+                            value={selectedKategori}
+                            onChange={(e) => setSelectedKategori(e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 transition-colors"
+                        >
+                            <option value="Semua">Semua Kategori</option>
+                            <option value="Makanan">Makanan</option>
+                            <option value="Minuman">Minuman</option>
+                            <option value="Dessert">Dessert</option>
+                            <option value="Snack">Snack</option>
+                        </select>
+                    </div>
+
+                    {/* Filter Bentuk */}
+                    <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-2">Bentuk</label>
+                        <select
+                            value={selectedBentuk}
+                            onChange={(e) => setSelectedBentuk(e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 transition-colors"
+                        >
+                            <option value="Semua">Semua Bentuk</option>
+                            <option value="Dine-in">Dine-in</option>
+                            <option value="Coffee Shop">Coffee Shop</option>
+                            <option value="Express">Express</option>
+                        </select>
+                    </div>
+
+                    {/* Filter Region */}
+                    <div>
+                        <label className="block text-xs font-medium text-slate-500 mb-2">Region</label>
+                        <select
+                            value={selectedRegion}
+                            onChange={(e) => setSelectedRegion(e.target.value)}
+                            className="w-full px-3 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-purple-400 transition-colors"
+                        >
+                            <option value="Semua">Semua Region</option>
+                            <option value="Jakarta">Jakarta</option>
+                            <option value="Bandung">Bandung</option>
+                            <option value="Yogyakarta">Yogyakarta</option>
+                            <option value="Surabaya">Surabaya</option>
+                            <option value="Bali">Bali</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {/* Period and Category Controls */}
+            <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
+                <div className="flex flex-wrap items-center justify-between gap-4">
+                    {/* Period Selector */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-500 mr-2">Periode :</span>
+                        <FilterButton label="Mingguan" active={periode === 'Mingguan'} onClick={() => setPeriode('Mingguan')} />
+                        <FilterButton label="Bulanan" active={periode === 'Bulanan'} onClick={() => setPeriode('Bulanan')} />
+                        <FilterButton label="Tahunan" active={periode === 'Tahunan'} onClick={() => setPeriode('Tahunan')} />
+                        <FilterButton label="Kisaran" active={periode === 'Custom'} onClick={() => setPeriode('Custom')} />
+                    </div>
+
+                    {/* Kategori Selector */}
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-500 mr-2">Kategori :</span>
+                        <FilterButton label="Laris" active={kategoriTren === 'Laris'} onClick={() => setKategoriTren('Laris')} />
+                        <FilterButton label="Kurang Laris" active={kategoriTren === 'Kurang Laris'} onClick={() => setKategoriTren('Kurang Laris')} />
+                    </div>
+
+                    {/* Comparison Toggle */}
+                    <div className="flex items-center gap-3 bg-slate-50 rounded-xl px-4 py-2">
+                        <span className="text-sm font-medium text-slate-600">Bandingkan</span>
+                        <button onClick={() => setShowComparison(!showComparison)} className={`relative inline-flex items-center h-7 rounded-full w-12 transition-all duration-200 ${showComparison ? 'bg-gradient-to-r from-purple-600 to-blue-600' : 'bg-slate-300'}`}>
+                            <span className={`inline-block w-5 h-5 transform bg-white rounded-full shadow transition-transform duration-200 ${showComparison ? 'translate-x-6' : 'translate-x-1'}`} />
+                        </button>
                     </div>
                 </div>
 
-                {/* Content */}
-                <div 
-                    className="lg:col-span-3 space-y-6"
-                    style={{
-                        opacity: animated ? 1 : 0,
-                        transform: animated ? 'translateX(0)' : 'translateX(20px)',
-                        transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s'
-                    }}
-                >
-                    {activeTab === 'profile' && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
-                            <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                👤 Informasi Profil
-                            </h4>
-                            
-                            <div className="flex items-center gap-6 pb-6 border-b border-slate-100">
-                                <div className="relative">
-                                    <div className="w-24 h-24 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-purple-500/30">
-                                        JD
-                                    </div>
-                                    <button className="absolute -bottom-2 -right-2 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center text-purple-600 hover:bg-purple-50 transition-colors">
-                                        📷
-                                    </button>
-                                </div>
-                                <div>
-                                    <h5 className="text-xl font-bold text-slate-800">John Doe</h5>
-                                    <p className="text-slate-500">General Manager</p>
-                                    <p className="text-sm text-purple-600 mt-1">john.doe@eatzchillz.com</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-2">Nama Lengkap</label>
-                                    <input type="text" defaultValue="John Doe" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-2">Email</label>
-                                    <input type="email" defaultValue="john.doe@eatzchillz.com" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-2">Nomor Telepon</label>
-                                    <input type="tel" defaultValue="+62 812 3456 7890" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-600 mb-2">Role</label>
-                                    <input type="text" defaultValue="General Manager" disabled className="w-full px-4 py-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-500" />
-                                </div>
-                            </div>
-
-                            <div className="flex justify-end pt-4">
-                                <button className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/25 transition-all">
-                                    Simpan Perubahan
-                                </button>
-                            </div>
+                {periode === 'Custom' && (
+                    <div className="mt-4 flex flex-wrap items-end gap-3">
+                        <div>
+                            <label className="block text-[11px] font-medium text-slate-500 mb-1">Mulai</label>
+                            <input
+                                type="date"
+                                value={trendStart1}
+                                onChange={(e) => setTrendStart1(e.target.value)}
+                                className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                            />
                         </div>
-                    )}
+                        <div>
+                            <label className="block text-[11px] font-medium text-slate-500 mb-1">Selesai</label>
+                            <input
+                                type="date"
+                                value={trendEnd1}
+                                onChange={(e) => setTrendEnd1(e.target.value)}
+                                className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                            />
+                        </div>
 
-                    {activeTab === 'notifications' && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
-                            <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                🔔 Pengaturan Notifikasi
-                            </h4>
+                        {showComparison && (
+                            <div className="flex flex-wrap items-end gap-3">
+                                <div className="h-10 w-px bg-slate-200 mx-1 hidden md:block" />
+                                <div>
+                                    <label className="block text-[11px] font-medium text-slate-500 mb-1">Mulai (Bandingkan)</label>
+                                    <input
+                                        type="date"
+                                        value={trendStart2}
+                                        onChange={(e) => setTrendStart2(e.target.value)}
+                                        className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-[11px] font-medium text-slate-500 mb-1">Selesai (Auto)</label>
+                                    <input
+                                        type="date"
+                                        value={trendEnd2}
+                                        disabled
+                                        className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-500 cursor-not-allowed"
+                                    />
+                                </div>
+                                <div className="text-[11px] text-slate-500 pb-1">
+                                    Durasi sama: <span className="font-medium text-slate-700">{durationDays} hari</span>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
 
-                            <div className="space-y-4">
-                                {[
-                                    { key: 'email' as const, title: 'Notifikasi Email', desc: 'Terima update dan laporan via email' },
-                                    { key: 'push' as const, title: 'Push Notification', desc: 'Notifikasi langsung di browser Anda' },
-                                    { key: 'sms' as const, title: 'SMS Alert', desc: 'Peringatan penting via SMS' },
-                                    { key: 'weekly' as const, title: 'Laporan Mingguan', desc: 'Ringkasan performa setiap minggu' },
-                                ].map((item) => (
-                                    <div key={item.key} className="flex items-center justify-between p-4 bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors">
-                                        <div>
-                                            <p className="font-medium text-slate-800">{item.title}</p>
-                                            <p className="text-sm text-slate-500">{item.desc}</p>
+            {/* Menu Terlaris Section - Bar Chart */}
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <h4 className="text-xl font-bold text-slate-800 mb-8 text-center">{kategoriTren === 'Laris' ? 'Menu Terlaris' : 'Menu Kurang Laris'}</h4>
+
+                {!showComparison ? (
+                    <div className="bg-slate-100 rounded-2xl p-6">
+                        <div className="relative flex items-end justify-between gap-6 h-64">
+                            {/* baseline */}
+                            <div className="absolute left-0 right-0 bottom-0 h-px bg-slate-300" />
+
+                            {trendingMenus.map((menu, index) => {
+                                const heightPercentage = (menu.sales / maxSales) * 100;
+                                const barHeight = animated ? `${heightPercentage}%` : '0%';
+
+                                return (
+                                    <div
+                                        key={index}
+                                        className="relative flex-1 h-full"
+                                        style={{
+                                            opacity: animated ? 1 : 0,
+                                            transform: animated ? 'translateY(0)' : 'translateY(12px)',
+                                            transition: `all 0.45s ease-out ${index * 0.08}s`
+                                        }}
+                                    >
+                                        <div
+                                            className="absolute left-0 right-0 text-sm font-semibold text-slate-800"
+                                            style={{
+                                                bottom: `${heightPercentage}%`,
+                                                transform: 'translateY(-10px)'
+                                            }}
+                                        >
+                                            {menu.name}
                                         </div>
-                                        <ToggleSwitch 
-                                            enabled={notifications[item.key]} 
-                                            onChange={() => setNotifications(prev => ({ ...prev, [item.key]: !prev[item.key] }))} 
-                                        />
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
 
-                    {activeTab === 'appearance' && (
-                        <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
-                            <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                🎨 Tampilan Aplikasi
-                            </h4>
-
-                            <div className="space-y-6">
-                                <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
-                                    <div>
-                                        <p className="font-medium text-slate-800">Mode Gelap</p>
-                                        <p className="text-sm text-slate-500">Aktifkan tema gelap untuk tampilan malam</p>
-                                    </div>
-                                    <ToggleSwitch enabled={darkMode} onChange={() => setDarkMode(!darkMode)} />
-                                </div>
-
-                                <div>
-                                    <p className="font-medium text-slate-800 mb-3">Warna Aksen</p>
-                                    <div className="flex gap-3">
-                                        {[
-                                            { color: 'from-purple-600 to-blue-600', active: true },
-                                            { color: 'from-emerald-500 to-teal-500', active: false },
-                                            { color: 'from-orange-500 to-red-500', active: false },
-                                            { color: 'from-pink-500 to-rose-500', active: false },
-                                            { color: 'from-slate-700 to-slate-900', active: false },
-                                        ].map((item, idx) => (
-                                            <button 
-                                                key={idx}
-                                                className={`w-12 h-12 rounded-xl bg-gradient-to-br ${item.color} shadow-lg transition-all hover:scale-110 ${item.active ? 'ring-4 ring-purple-300' : ''}`}
+                                        <div className="absolute inset-x-0 bottom-0 h-full" title={`${menu.name}: ${menu.sales}`}>
+                                            <div
+                                                className="absolute inset-x-0 bottom-0 bg-slate-300 rounded-sm"
+                                                style={{
+                                                    height: barHeight,
+                                                    transition: `height 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) ${index * 0.08}s`
+                                                }}
                                             />
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <p className="font-medium text-slate-800 mb-3">Ukuran Font</p>
-                                    <div className="flex gap-2">
-                                        {['Kecil', 'Normal', 'Besar'].map((size, idx) => (
-                                            <button
-                                                key={idx}
-                                                className={`px-4 py-2 rounded-xl text-sm font-medium transition-all ${
-                                                    idx === 1 
-                                                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-lg' 
-                                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                                                }`}
-                                            >
-                                                {size}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {activeTab === 'security' && (
-                        <div className="space-y-6">
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
-                                <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                    🔒 Keamanan Akun
-                                </h4>
-
-                                <div className="space-y-4">
-                                    <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-2xl">✅</span>
-                                            <div>
-                                                <p className="font-medium text-emerald-700">Email Terverifikasi</p>
-                                                <p className="text-sm text-emerald-600">john.doe@eatzchillz.com</p>
-                                            </div>
                                         </div>
                                     </div>
-
-                                    <div className="p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <span className="text-2xl">⚠️</span>
-                                            <div>
-                                                <p className="font-medium text-amber-700">Two-Factor Authentication</p>
-                                                <p className="text-sm text-amber-600">Belum diaktifkan - Amankan akun Anda</p>
-                                            </div>
-                                        </div>
-                                        <button className="px-4 py-2 text-sm font-medium text-amber-700 bg-amber-100 rounded-xl hover:bg-amber-200 transition-colors">
-                                            Aktifkan
-                                        </button>
-                                    </div>
-                                </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                ) : (
+                    <div className="space-y-4">
+                        <div className="bg-slate-50 rounded-2xl px-4 py-3 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-slate-600">Menu 1:</span>
+                                <select
+                                    value={compareMenu1}
+                                    onChange={(e) => setCompareMenu1(e.target.value)}
+                                    className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                                >
+                                    {trendingMenus.map(m => (
+                                        <option key={m.name} value={m.name}>{m.name}</option>
+                                    ))}
+                                </select>
                             </div>
 
-                            <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 space-y-6">
-                                <h4 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-                                    🔑 Ubah Password
-                                </h4>
-
-                                <div className="space-y-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-600 mb-2">Password Saat Ini</label>
-                                        <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-600 mb-2">Password Baru</label>
-                                        <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-600 mb-2">Konfirmasi Password Baru</label>
-                                        <input type="password" placeholder="••••••••" className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end pt-2">
-                                    <button className="px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-xl hover:from-purple-700 hover:to-blue-700 shadow-lg shadow-purple-500/25 transition-all">
-                                        Update Password
-                                    </button>
-                                </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-sm font-medium text-slate-600">Menu 2:</span>
+                                <select
+                                    value={compareMenu2}
+                                    onChange={(e) => setCompareMenu2(e.target.value)}
+                                    className="px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm"
+                                >
+                                    {trendingMenus.filter(m => m.name !== compareMenu1).map(m => (
+                                        <option key={m.name} value={m.name}>{m.name}</option>
+                                    ))}
+                                </select>
                             </div>
 
-                            <div className="bg-red-50 rounded-2xl border border-red-200 p-6">
-                                <h4 className="text-lg font-semibold text-red-700 flex items-center gap-2">
-                                    ⚠️ Zona Berbahaya
-                                </h4>
-                                <p className="text-sm text-red-600 mt-2">Tindakan ini tidak dapat dibatalkan. Harap berhati-hati.</p>
-                                <button className="mt-4 px-4 py-2 text-sm font-medium text-red-600 bg-white border border-red-300 rounded-xl hover:bg-red-100 transition-colors">
-                                    Hapus Akun
-                                </button>
+                            <div className="text-xs text-slate-500">
+                                Timeline sama: <span className="font-medium text-slate-700">{periode}</span>
                             </div>
                         </div>
-                    )}
-                </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <MiniBarChart
+                                title={`Grafik Tren (${periode === 'Custom' ? 'Kisaran' : periode}) - ${compareMenu1}`}
+                                data={periode === 'Custom' ? buildMenuTrend(compareMenu1, trendStart1, trendEnd1) : buildMenuTrend(compareMenu1)}
+                            />
+                            <MiniBarChart
+                                title={`Grafik Tren (${periode === 'Custom' ? 'Kisaran' : periode}) - ${compareMenu2}`}
+                                data={periode === 'Custom' ? buildMenuTrend(compareMenu2, trendStart2, trendEnd2) : buildMenuTrend(compareMenu2)}
+                            />
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -2522,7 +2917,7 @@ const App = () => {
         setIsAuthenticated(false);
         setAuthView('login');
     };
-
+  
   const handleSwitchRole = () => {
     setUserRole(prev => (prev === 'GM' ? 'RM' : 'GM'));
     setCurrentPage('Dashboard');
@@ -2575,11 +2970,11 @@ const App = () => {
       setProposals(prev => [newProposal, ...prev]);
   };
   
-  const handleUpdateProposalStatus = (id: number, status: ProposalStatus) => {
+  const handleUpdateProposalStatus = (id: number, status: ProposalStatus, comment?: string) => {
       let approvedProposal: Proposal | undefined;
       setProposals(prev => prev.map(p => {
           if (p.id === id) {
-              const updatedProposal = {...p, status};
+              const updatedProposal = {...p, status, gmComment: comment || p.gmComment};
               if (status === 'Approved') {
                   approvedProposal = updatedProposal;
               }
@@ -2638,8 +3033,8 @@ const App = () => {
                 return <MenuProposalsPage user={currentUser} proposals={proposals} showToast={showToast} onAddProposal={handleAddProposal} onUpdateStatus={handleUpdateProposalStatus} />;
       case 'Analytics':
         return <AnalyticsPage user={currentUser} />;
-      case 'Settings':
-        return <SettingsPage />;
+      case 'Tren Makanan':
+        return <TrenMakananPage />;
       default:
         return <DashboardPage user={currentUser} onNav={setCurrentPage} proposals={proposals} menus={menus} />;
     }
