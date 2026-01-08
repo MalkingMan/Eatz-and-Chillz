@@ -1,0 +1,162 @@
+               Final Project Prototyping 2025/2026
+                           Eatz and Chillz
+Pendahuluan
+Eatz and Chillz adalah sebuah jaringan Food and Beverages di Indonesia. Jaringan ini hadir di masyarakat
+dalam lima bentuk, Dine-in, Coffee Shop, Express, Snack Stall, dan Drink Stall. Setiap bentuk ini
+menawarkan menu yang berbeda-beda. Selain itu, Eatz and Chillz bentuk Dine-in, Coffee Shop, dan
+Express juga memiliki ciri khas yaitu menu khusus yang disesuaikan dengan karakteristik pengunjung di
+suatu region. Misalnya, sebuah region bisa saja menawarkan lebih banyak menu pedas daripada asin atau
+sebuah region bisa menawarkan kopi asli region tersebut yang mungkin tidak muncul di region lain. Menu-
+menu ini dikelola secara nasional oleh General Manager yang mana semua bentuk akan memiliki menu
+yang sama se-Indonesia. Untuk menu khusus yang disesuaikan per region, Region Manager berhak
+mengusulkan ke General Manager. Tugas kelompok anda adalah membuat sistem yang mendukung
+kinerja owner Eatz and Chillz.
+
+Pembagian Tugas
+ Jumlah Anggota          UX Desainer 1               UX Desainer 2                UX Desainer 3
+    1 orang          G03, G04, G05, dan R03                 -                            -
+    2 orang          G03, G04, G05, dan R03      G06, G07, R04, dan R05                  -
+    3 orang          G03, G04, G05, dan R03      G06, G07, R04, dan R05         G01, G02, R01, R02
+
+User Story
+                                           General manager
+ Kode                  User Story                                     Acceptance Criteria
+ G01 Saya bisa mengetahui setiap ada cabang baru             1. GM bisa mengetahui jika ada cabang
+      yang buka di sebuah region agar saya bisa                 baru yang buka.
+      memantaunya                                            2. Informasi cabang baru yang buka
+                                                                terdiri atas region, nama cabang,
+                                                                alamat, bentuk cabang, PIC, kontak
+                                                                cabang dan PIC.
+                                                             3. Jika membutuhkan, GM bisa
+                                                                membuka profil cabang yang baru.
+ G02    Saya bisa mengangkat seorang Region                  1. GM bisa mendaftarkan RM.
+        Manager dan meng-assign-nya ke sebuah                2. Informasi RM terdiri atas nama, foto,
+        region agar ia segera memimpin seluruh                  jenis kelamin, No. telp, alamat, dan
+        cabang di region tersebut                               NIK.
+                                                             3. GM bisa mendaftarkan region baru.
+                                                             4. Saat membuat region baru, GM bisa
+                                                                memindahkan cabang yang sudah
+                                                                ada ke region tersebut jika
+                                                                diperlukan.
+                                                             5. GM bisa melihat profil RM yang akan
+                                                                di-assign
+                                                   6. GM bisa meng assign seorang RM ke
+                                                       sebuah region.
+                                                   7. 1 region hanya boleh memiliki 1 RM,
+                                                       dan sebaliknya.
+G03   Saya bisa mengelola menu untuk memastikan    1. Sebuah menu bisa jadi dimiliki oleh
+      menu yang saya tawarkan ke pembeli adalah        beberapa jenis bentuk.
+      menu yang terbaik                            2. Terdapat menu yang hanya dimiliki
+                                                       bentuk tertentu.
+                                                   3. Terdapat menu yang hanya dimiliki
+                                                       region tertentu.
+                                                   4. Snack stall hanya bisa menjual snack
+                                                   5. Drink stall hanya bisa menjual
+                                                       minuman instan.
+                                                   6. Informasi menu terdiri atas kategori,
+                                                       nama, foto, harga, dan deskripsi.
+                                                   7. Kategori terdiri atas makanan,
+                                                       minuman, kopi, snack, dan minuman
+                                                       instan
+                                                   8. Menu dapat berubah sewaktu-waktu.
+                                                   9. Khusus dine in dan coffe shop
+                                                       dikenakan service fee.
+                                                   10. Semua jenis bentuk dikenai pajak.
+G04   Saya bisa melihat usulan menu dari Region    1. Untuk menu khusus, yang bisa
+      Manager agar saya bisa mempertimbangkan          mengusulkan adalah RM.
+      perlu tidaknya menu tersebut untuk dijual    2. GM bisa melihat nama RM dan region
+                                                       yang mengusulkan.
+                                                   1. Informasi yang terdapat di menu
+                                                       khusus adalah nama, foto, harga,
+                                                       deskripsi, dan catatan RM.
+G05   Saya bisa menyetujui usulan menu dari        1. Ketika sebuah menu khusus disetujui
+      Region Manager agar menu tersebut bisa           oleh GM, maka GM berhak untuk
+      langsung dijual                                  melakukan perubahan jika
+                                                       dibutuhkan sebelum menu tersebut
+                                                       launching.
+G06   Saya bisa melihat progress keuntungan saya   1. GM bisa melihat keuntungan total
+      dari waktu ke waktu secara keseluruhan           (skala nasional).
+      maupun di tiap region agar saya tahu         2. GM bisa melihat keuntungan per jenis
+      tindakan apa yang perlu dilakukan untuk          bentuk.
+      memaksimalkan keuntungan                     3. GM bisa melihat keuntungan per
+                                                       region.
+                                                   4. Timeline keuntungan dapat dibuat
+                                                       perminggu (senin-minggu), perbulan,
+                                                       pertahun, atau kisaran waktu
+                                                       tertentu.
+                                                   5. GM bisa membandingkan
+                                                       keuntungan 2 timeline dengan durasi
+                                                       waktu yang sama.
+G07    Saya bisa melihat tren makanan yang dibeli       1. GM dapat melihat daftar makanan
+       secara nasional dan regional agar saya tahu         yang paling laris secara nasional,
+       jenis makanan apa yang laris dan kurang laris       region maupun per jenis bentuk.
+       di sisi pembeli                                  2. GM dapat melihat daftar makanan
+                                                           yang kurang laris secara nasional,
+                                                           region maupun per jenis bentuk.
+                                                        3. Timeline trend menu dapat dibuat
+                                                           perminggu (senin-minggu), perbulan,
+                                                           pertahun, atau kisaran waktu
+                                                           tertentu.
+                                                        4. GM bisa membandingkan 2 menu
+                                                           yang berbeda, timeline dengan durasi
+                                                           waktu yang sama.
+
+
+                                        Region Manager
+Kode                   User Story                               Acceptance Criteria
+R01 Saya bisa membuka cabang baru agar cabang          1. RM bisa membuka cabang baru
+     tersebut segera beroperasi                        2. Informasi yang ada di setiap cabang
+                                                          adalah nama cabang, alamat, bentuk
+                                                          cabang, PIC, kontak cabang dan PIC.
+R02 Saya bisa mengangkat manager cabang                1. RM bisa mendaftarkan BM atau staff
+     beserta staffnya agar cabang tersebut segera         cabang.
+     beroperasi                                        2. Informasi BM atau staff cabang terdiri
+                                                          atas nama, foto, jenis kelamin, No.
+                                                          telp, alamat, NIK.
+                                                       3. Khusus staff cabang terdapat
+                                                          informasi role
+                                                       4. Role staff terdiri atas kasir, dapur,
+                                                          barista, waiter, cleaning
+                                                       5. RM bisa meng-assign seorang BM
+                                                          atau staff cabang ke sebuah cabang
+                                                       6. 1 cabang hanya boleh memiliki 1 BM
+                                                          dan sebaliknya
+                                                       7. Dalam 1 cabang boleh memiliki lebih
+                                                          dari 1 staff
+                                                       8. 1 staff hanya bisa berada di 1 cabang
+                                                          saja
+                                                       9. RM bisa melihat profil dari BM atau
+                                                          staff cabang
+R03 Saya bisa mengusulkan menu spesial kepada          1. RM bisa mengusulkan menu khusus
+     General Manager agar menu tersebut bisa              ke GM
+     segera dijual                                     2. Informasi menu khusus terdiri atas
+                                                          nama, foto, harga, deskripsi, dan
+                                                          catatan RM.
+R04 Saya bisa melihat progress keuntungan saya         1. RM bisa melihat keuntungan per
+     dari waktu ke waktu secara region maupun di          region.
+     tiap cabang agar saya tahu tindakan apa yang
+      perlu dilakukan untuk memaksimalkan            2. RM bisa melihat keuntungan per
+      keuntungan                                        cabang.
+                                                     3. RM bisa melihat keuntungan per
+                                                        bentuk.
+                                                     4. Timeline keuntungan dapat dibuat
+                                                        perminggu (senin-minggu), perbulan,
+                                                        pertahun, atau kisaran waktu
+                                                        tertentu.
+                                                     5. RM bisa membandingkan keuntungan
+                                                        2 timeline dengan durasi waktu yang
+                                                        sama.
+R05   Saya bisa melihat tren makanan yang dibeli     1. RM dapat melihat daftar makanan
+      secara regional agar saya tahu jenis makanan      yang paling laris secara region,
+      apa yang laris dan kurang laris di mata           cabang maupun per bentuk
+      pembeli                                        2. RM dapat melihat daftar makanan
+                                                        yang kurang laris secara region,
+                                                        cabang maupun per bentuk
+                                                     3. Timeline trend menu dapat dibuat
+                                                        perminggu (senin-minggu), perbulan,
+                                                        pertahun, atau kisaran waktu
+                                                        tertentu.
+                                                     4. RM bisa membandingkan 2 menu
+                                                        yang berbeda, timeline dengan durasi
+                                                        waktu yang sama.
+
