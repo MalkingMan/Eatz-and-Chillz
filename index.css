@@ -1,9 +1,17 @@
 /* Eatz & Chillz - Global Styles */
-/* This file is required for Vite build */
-
 @import "tailwindcss";
 
-/* Custom Tailwind Theme */
+/* Custom CSS Variables */
+:root {
+  --color-primary: #2F3E46;
+  --color-secondary: #B08968;
+  --color-background: #F2F2F2;
+  --color-card: #FFFFFF;
+  --color-border: #E0E0E0;
+  --color-textPrimary: #1F2933;
+  --color-textSecondary: #6B7280;
+}
+
 @theme {
   --color-primary: #2F3E46;
   --color-secondary: #B08968;
@@ -12,6 +20,8 @@
   --color-border: #E0E0E0;
   --color-textPrimary: #1F2933;
   --color-textSecondary: #6B7280;
+  
+  --font-sans: 'Inter', sans-serif;
 }
 
 * {
