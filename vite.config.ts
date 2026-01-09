@@ -6,8 +6,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
 
   return {
-    // 🔹 PENTING untuk GitHub Pages
-    base: '/eatz-and-chillz/',
+    // 🔹 Base path - '/' untuk Vercel, '/eatz-and-chillz/' untuk GitHub Pages
+    base: '/',
 
     server: {
       port: 3000,
@@ -18,7 +18,6 @@ export default defineConfig(({ mode }) => {
 
     define: {
       'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY),
     },
 
     resolve: {
