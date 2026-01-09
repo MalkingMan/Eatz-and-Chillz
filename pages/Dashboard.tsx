@@ -200,21 +200,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#1F2933] via-[#3E4C59] to-[#52606D] rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#1E1510] via-[#4A3222] to-[#8C5E35] rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10">
-          <p className="text-[#B08968] font-semibold text-sm uppercase tracking-wider mb-2">
+          <p className="text-[#DDB892] font-semibold text-sm uppercase tracking-wider mb-2">
             {isGM ? 'General Manager Dashboard' : 'Region Manager Dashboard'}
           </p>
           <h1 className="text-3xl font-bold mb-2">
-            Welcome back, <span className="text-[#DDB892]">{user.name}</span>!
+            Welcome back, <span className="text-[#F5E6D3]">{user.name}</span>!
           </h1>
-          <p className="text-gray-300 text-lg">
+          <p className="text-gray-200 text-lg">
             Here's what's happening at Eatz and Chillz today.
           </p>
         </div>
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-72 h-72 bg-[#B08968] opacity-10 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-        <div className="absolute bottom-0 right-32 w-48 h-48 bg-[#DDB892] opacity-10 rounded-full -mb-16 blur-2xl"></div>
+        <div className="absolute top-0 right-0 w-72 h-72 bg-[#D4955A] opacity-20 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+        <div className="absolute bottom-0 right-32 w-48 h-48 bg-[#A8896A] opacity-20 rounded-full -mb-16 blur-2xl"></div>
       </div>
 
       {/* Stats Cards */}
@@ -545,8 +545,8 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
                     </td>
                     <td className="py-4 px-4 text-right">
                       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${branch.trend.startsWith('+')
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : 'bg-red-100 text-red-700'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : 'bg-red-100 text-red-700'
                         }`}>
                         {branch.trend}
                       </span>

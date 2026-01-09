@@ -18,7 +18,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => 
     return (
         <div className="min-h-screen w-full flex overflow-hidden font-sans">
             {/* Left Side - Visuals */}
-            <div className="hidden lg:flex w-1/2 relative flex-col justify-between p-16 bg-gradient-to-br from-[#4A4A4A] via-[#8B735B] to-[#D4B483]">
+            <div className="hidden lg:flex w-1/2 relative flex-col justify-between p-16 bg-gradient-to-br from-[#2C2C2C] via-[#5F4B3B] to-[#D4955A]">
                 {/* Overlay for better text readability if needed, though gradient does the job */}
                 <div className="absolute inset-0 bg-black/10 pointer-events-none"></div>
 
@@ -37,6 +37,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, onSwitchToRegister }) => 
                         </h1>
 
                     </div>
+
 
                     {/* Bottom Space */}
                     <div></div>

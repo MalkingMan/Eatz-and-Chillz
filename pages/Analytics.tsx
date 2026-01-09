@@ -182,25 +182,6 @@ export const Analytics: React.FC = () => {
                 </div>
             </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-white p-6 rounded-2xl border border-border shadow-sm flex justify-between items-center">
-                    <div>
-                        <p className="text-textSecondary text-sm font-semibold mb-1">Total Pemasukan ({period})</p>
-                        <h3 className="text-2xl font-bold text-textPrimary">Rp {totalRevenue.toLocaleString('id-ID')}</h3>
-                    </div>
-                    <div className={`px-3 py-1 rounded-full text-xs font-bold ${Number(growth) >= 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                        {Number(growth) >= 0 ? '+' : ''}{growth}%
-                    </div>
-                </div>
-                <div className="bg-white p-6 rounded-2xl border border-border shadow-sm flex justify-between items-center">
-                    <div>
-                        <p className="text-textSecondary text-sm font-semibold mb-1">Total Pesanan ({period})</p>
-                        <h3 className="text-2xl font-bold text-textPrimary">{Math.floor(totalRevenue / 35000).toLocaleString('id-ID')}</h3>
-                    </div>
-                    <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">Active</div>
-                </div>
-            </div>
-
             <div className="bg-white rounded-2xl shadow-sm border border-border p-6">
                 <div className="border-2 border-dashed border-gray-200 rounded-2xl p-4 md:p-8">
                     {!isComparison ? (
