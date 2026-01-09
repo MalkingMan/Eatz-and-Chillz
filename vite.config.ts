@@ -6,8 +6,8 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '');
 
   return {
-    // 🔹 Base path - '/' untuk Vercel, '/eatz-and-chillz/' untuk GitHub Pages
-    base: '/',
+    // 🔹 Base path untuk GitHub Pages (sesuai nama repository)
+    base: '/Eatz-and-Chillz/',
 
     server: {
       port: 3000,
