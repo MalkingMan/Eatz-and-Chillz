@@ -195,17 +195,17 @@ export const MenuManagement: React.FC = () => {
 
         if (isExclusive) {
             if (selectedForms.includes(form)) {
-                setSelectedForms([]); 
+                setSelectedForms([]);
             } else {
-                setSelectedForms([form]); 
+                setSelectedForms([form]);
             }
         } else {
             if (hasExclusiveSelected) {
                 setSelectedForms([form]);
             } else {
-                setSelectedForms(prev => 
-                    prev.includes(form) 
-                        ? prev.filter(f => f !== form) 
+                setSelectedForms(prev =>
+                    prev.includes(form)
+                        ? prev.filter(f => f !== form)
                         : [...prev, form]
                 );
             }
@@ -249,7 +249,7 @@ export const MenuManagement: React.FC = () => {
                         {filteredMenus.length} Menu Aktif
                     </span>
                 </div>
-                <Button 
+                <Button
                     onClick={() => { resetForm(); setIsAddModalOpen(true); }}
                     className="bg-[#B08968] hover:bg-[#9a7658] text-white px-6 py-3 rounded-xl font-semibold shadow-sm"
                 >
@@ -277,7 +277,7 @@ export const MenuManagement: React.FC = () => {
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
                     {/* Filter Kategori */}
-                     <div className="relative min-w-[160px]">
+                    <div className="relative min-w-[160px]">
                         <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-lg py-2 pl-4 pr-10 text-sm text-textSecondary font-medium focus:outline-none focus:ring-2 focus:ring-[#B08968] focus:border-transparent cursor-pointer hover:bg-gray-100 transition-colors">
                             <option value="">Semua Kategori</option>
                             {CATEGORY_OPTIONS.map(cat => <option key={cat} value={cat}>{cat}</option>)}
@@ -293,7 +293,7 @@ export const MenuManagement: React.FC = () => {
                     <div key={item.id} className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col hover:shadow-md transition-shadow group">
                         <div className="h-56 bg-[#4A5568] relative flex items-center justify-center overflow-hidden">
                             <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                            <div 
+                            <div
                                 onClick={() => handleEditClick(item)}
                                 className="absolute top-4 right-4 bg-white/90 hover:bg-white p-2.5 rounded-full cursor-pointer transition-colors shadow-sm z-10 backdrop-blur-sm"
                             >
@@ -320,22 +320,22 @@ export const MenuManagement: React.FC = () => {
             {editingMenu && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm overflow-y-auto py-8 px-4">
                     <div className="bg-[#F2F2F2] rounded-2xl w-full max-w-[500px] shadow-2xl relative flex flex-col max-h-[95vh] overflow-hidden">
-                        
+
                         {/* Image Preview Header */}
                         <div className="h-64 bg-gray-200 relative group shrink-0">
                             <img src={uploadedImage || editingMenu.image} alt="Menu Preview" className="w-full h-full object-cover" />
-                            <div 
+                            <div
                                 onClick={() => editFileInputRef.current?.click()}
                                 className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer"
                             >
                                 <Camera className="w-8 h-8 text-white mb-2" />
                                 <span className="text-white font-bold text-lg drop-shadow-md">Ganti Foto Menu</span>
                             </div>
-                            <input 
-                                type="file" 
+                            <input
+                                type="file"
                                 ref={editFileInputRef}
                                 onChange={handleImageUpload}
-                                className="hidden" 
+                                className="hidden"
                                 accept="image/*"
                             />
                             <button onClick={closeModals} className="absolute top-4 right-4 bg-white/20 hover:bg-black/40 text-white p-2 rounded-full backdrop-blur-sm transition-colors">
@@ -347,8 +347,8 @@ export const MenuManagement: React.FC = () => {
                         <div className="p-6 space-y-5 overflow-y-auto bg-[#F2F2F2]">
                             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                                 <label className="block text-[11px] font-bold text-[#1F2933] uppercase tracking-wide mb-2">Nama Menu</label>
-                                <input 
-                                    type="text" 
+                                <input
+                                    type="text"
                                     value={menuName}
                                     onChange={(e) => setMenuName(e.target.value)}
                                     className="w-full bg-[#F2F2F2] border-transparent rounded-lg px-4 py-3 text-sm font-semibold text-[#1F2933] focus:ring-2 focus:ring-[#B08968] outline-none"
@@ -372,7 +372,7 @@ export const MenuManagement: React.FC = () => {
 
                             <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100">
                                 <label className="block text-[11px] font-bold text-[#1F2933] uppercase tracking-wide mb-2">Deskripsi</label>
-                                <textarea 
+                                <textarea
                                     rows={4}
                                     value={description}
                                     onChange={(e) => setDescription(e.target.value)}
@@ -384,8 +384,8 @@ export const MenuManagement: React.FC = () => {
                                 <label className="block text-[11px] font-bold text-[#1F2933] uppercase tracking-wide mb-2">Harga</label>
                                 <div className="relative">
                                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm font-bold text-gray-500">Rp.</span>
-                                    <input 
-                                        type="text" 
+                                    <input
+                                        type="text"
                                         value={rawPrice ? parseInt(rawPrice).toLocaleString('id-ID') : ''}
                                         onChange={handlePriceChange}
                                         className="w-full bg-[#F2F2F2] border-transparent rounded-lg pl-12 pr-4 py-3 text-lg font-bold text-[#1F2933] focus:ring-2 focus:ring-[#B08968] outline-none"
@@ -416,7 +416,7 @@ export const MenuManagement: React.FC = () => {
                         </div>
 
                         <div className="p-8 space-y-6 overflow-y-auto">
-                            <div 
+                            <div
                                 onClick={() => addFileInputRef.current?.click()}
                                 className={`border-2 border-dashed ${uploadedImage ? 'border-[#B08968] bg-white' : 'border-gray-300 bg-gray-50'} rounded-xl h-40 flex flex-col items-center justify-center text-gray-400 cursor-pointer hover:bg-gray-100 transition-colors group overflow-hidden relative`}
                             >
@@ -430,11 +430,11 @@ export const MenuManagement: React.FC = () => {
                                         <span className="text-xs font-medium text-gray-500">Klik untuk upload gambar</span>
                                     </>
                                 )}
-                                <input 
-                                    type="file" 
+                                <input
+                                    type="file"
                                     ref={addFileInputRef}
                                     onChange={handleImageUpload}
-                                    className="hidden" 
+                                    className="hidden"
                                     accept="image/*"
                                 />
                             </div>
@@ -454,7 +454,7 @@ export const MenuManagement: React.FC = () => {
                                     ))}
                                 </div>
                             </div>
-                            
+
                             <div>
                                 <div className="flex justify-between items-center mb-3">
                                     <label className="block text-xs font-bold text-textPrimary uppercase tracking-wide">Kategori</label>
@@ -485,6 +485,48 @@ export const MenuManagement: React.FC = () => {
                                     <input type="text" value={rawPrice ? parseInt(rawPrice).toLocaleString('id-ID') : ''} onChange={handlePriceChange} placeholder="0" className="w-full bg-gray-50 border border-gray-200 rounded-lg pl-12 pr-4 py-3 text-sm text-textPrimary font-bold focus:ring-2 focus:ring-[#B08968] focus:border-transparent outline-none transition-all group-hover:bg-gray-100" />
                                 </div>
                             </div>
+
+                            {/* Rincian Harga - Dynamic Price Breakdown */}
+                            {numericPrice > 0 && (
+                                <div className="bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl p-5 space-y-4 shadow-inner">
+                                    <h4 className="text-sm font-bold text-[#B08968] underline underline-offset-4">Rincian Harga</h4>
+
+                                    <div className="space-y-3">
+                                        {/* Harga Dasar */}
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-semibold text-gray-700">Harga Dasar :</span>
+                                            <span className="text-sm font-bold text-gray-900">{formatCurrency(numericPrice)}</span>
+                                        </div>
+
+                                        {/* Service Fee - Only shows for Dine-in or Coffee Shop */}
+                                        {hasServiceFee && (
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-semibold text-gray-700">Service Fee :</span>
+                                                <span className="text-sm font-bold text-gray-900">{formatCurrency(serviceFee)}</span>
+                                            </div>
+                                        )}
+
+                                        {/* Pajak - Always shows */}
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-semibold text-gray-700">Pajak :</span>
+                                            <span className="text-sm font-bold text-gray-900">{formatCurrency(tax)}</span>
+                                        </div>
+
+                                        {/* Divider */}
+                                        <div className="border-t border-gray-400 pt-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-base font-bold text-gray-800">Total Harga:</span>
+                                                <span className="text-xl font-black text-gray-900">{formatCurrency(totalPrice)}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Footer Note */}
+                                    <p className="text-[10px] text-gray-500 mt-2">
+                                        *Service Fee 5% dikenakan untuk Dine-in dan Coffee Shop
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         <div className="p-6 border-t border-gray-100 bg-white rounded-b-2xl flex gap-4 z-10">
