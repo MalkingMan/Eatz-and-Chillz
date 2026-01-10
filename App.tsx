@@ -60,7 +60,7 @@ export default function App() {
 
           {/* Shared Routes */}
           <Route path="/menu-proposal" element={<MenuProposal user={user} />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/analytics" element={<Analytics user={user} />} />
           <Route path="/trends" element={<TrenMakanan />} />
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
