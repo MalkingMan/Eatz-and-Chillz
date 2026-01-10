@@ -81,6 +81,39 @@ const rmYearlyRevenueData = [
     { name: 'Dec', revenue: 210000000 },
 ];
 
+// Previous Period Data for RM Comparison
+const rmWeeklyRevenuePrevData = [
+    { name: 'Mon', revenue: 7800000 },
+    { name: 'Tue', revenue: 6500000 },
+    { name: 'Wed', revenue: 8900000 },
+    { name: 'Thu', revenue: 7400000 },
+    { name: 'Fri', revenue: 10100000 },
+    { name: 'Sat', revenue: 13200000 },
+    { name: 'Sun', revenue: 11500000 },
+];
+
+const rmMonthlyRevenuePrevData = [
+    { name: 'Week 1', revenue: 38000000 },
+    { name: 'Week 2', revenue: 35500000 },
+    { name: 'Week 3', revenue: 41200000 },
+    { name: 'Week 4', revenue: 44800000 },
+];
+
+const rmYearlyRevenuePrevData = [
+    { name: 'Jan', revenue: 135000000 },
+    { name: 'Feb', revenue: 122000000 },
+    { name: 'Mar', revenue: 158000000 },
+    { name: 'Apr', revenue: 145000000 },
+    { name: 'May', revenue: 168000000 },
+    { name: 'Jun', revenue: 152000000 },
+    { name: 'Jul', revenue: 175000000 },
+    { name: 'Aug', revenue: 182000000 },
+    { name: 'Sep', revenue: 165000000 },
+    { name: 'Oct', revenue: 178000000 },
+    { name: 'Nov', revenue: 185000000 },
+    { name: 'Dec', revenue: 200000000 },
+];
+
 interface AnalyticsProps {
     user: User;
 }
@@ -88,10 +121,8 @@ interface AnalyticsProps {
 export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
     const isGM = user.role === UserRole.GM;
     const [isComparison, setIsComparison] = useState(false);
-    // For GM, default to 'Mingguan'. For RM, default to null (no selection = show 3 charts)
     const [period, setPeriod] = useState<'Mingguan' | 'Bulanan' | 'Tahunan' | null>(isGM ? 'Mingguan' : null);
 
-    // Date Pickers State
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
 
@@ -115,12 +146,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
         return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     }, [period]);
 
-    // Data generation depends on dates now
     const generateChartData = (isPrev = false) => {
-        // Increased base revenue to reflect 30+ menu items volume
         let baseRevenue = 15000000;
 
-        // Influence revenue by filters
         if (filterRegion) baseRevenue /= 4;
         if (filterBranch) baseRevenue /= 2;
         if (filterCategory) baseRevenue *= 0.6;
@@ -129,13 +157,12 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
         if (period === 'Bulanan') baseRevenue *= 4;
         if (period === 'Tahunan') baseRevenue *= 48;
 
-        // Use date to simulate random seed change
         const dateSeed = (dateFrom.length + dateTo.length) * 100;
 
         return chartLabels.map((label, index) => {
             const randomFactor = 0.8 + Math.random() * 0.4;
             const trendFactor = isPrev ? 0.9 : 1.05;
-            const wave = Math.sin(index + dateSeed) * 0.1 + 1; // Seed affects wave
+            const wave = Math.sin(index + dateSeed) * 0.1 + 1;
 
             return {
                 name: label,
@@ -173,7 +200,6 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                             <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         </div>
                     </div>
-                    {/* ... Other filters ... */}
                     <div className="relative">
                         <label className="block text-xs font-bold text-textSecondary uppercase mb-2 ml-1 tracking-wider">Cabang</label>
                         <div className="relative">
@@ -217,8 +243,6 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                                     <button
                                         key={p}
                                         onClick={() => {
-                                            // For RM: toggle behavior (click same to deselect)
-                                            // For GM: always select
                                             if (!isGM && period === p) {
                                                 setPeriod(null);
                                             } else {
@@ -264,9 +288,8 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                 </div>
             </div>
 
-            {/* Charts Section - Different Layout for GM vs RM */}
+            {/* Charts Section */}
             {isGM ? (
-                /* GM Layout - Original Chart */
                 <div className="bg-white rounded-2xl shadow-sm border border-border p-6">
                     <div className="border-2 border-dashed border-gray-200 rounded-2xl p-4 md:p-8">
                         {!isComparison ? (
@@ -335,14 +358,51 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                     </div>
                 </div>
             ) : (
-                /* RM Layout - Different based on period selection */
                 <div className="space-y-6">
-                    {period === null ? (
-                        /* No period selected: Show 3 Charts - 2 on top, 1 on bottom */
-                        <>
-                            {/* Top Row: 2 Charts Side by Side */}
+                    {isComparison ? (
+                        <div className="bg-white rounded-2xl shadow-sm border-2 border-primary p-6">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                {/* Chart 1: Grafik Trend Keuntungan Per Cabang */}
+                                <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
+                                    <div className="text-center mb-4">
+                                        <h3 className="text-lg font-bold text-textPrimary">
+                                            Grafik Tren ({period === 'Mingguan' || period === null ? 'Minggu' : period === 'Bulanan' ? 'Bulan' : 'Tahun'} Ini)
+                                        </h3>
+                                    </div>
+                                    <div className="h-[300px] w-full">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={period === 'Bulanan' ? rmMonthlyRevenueData : period === 'Tahunan' ? rmYearlyRevenueData : rmWeeklyRevenueData}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                                <XAxis dataKey="name" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                                                <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} stroke="#6B7280" fontSize={10} tickLine={false} axisLine={false} />
+                                                <Tooltip formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                                <Bar dataKey="revenue" fill="#B08968" radius={[6, 6, 0, 0]} barSize={32} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                                <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
+                                    <div className="text-center mb-4">
+                                        <h3 className="text-lg font-bold text-textPrimary">
+                                            Grafik Tren ({period === 'Mingguan' || period === null ? 'Minggu' : period === 'Bulanan' ? 'Bulan' : 'Tahun'} Kemarin)
+                                        </h3>
+                                    </div>
+                                    <div className="h-[300px] w-full">
+                                        <ResponsiveContainer width="100%" height="100%">
+                                            <BarChart data={period === 'Bulanan' ? rmMonthlyRevenuePrevData : period === 'Tahunan' ? rmYearlyRevenuePrevData : rmWeeklyRevenuePrevData}>
+                                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                                <XAxis dataKey="name" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                                                <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} stroke="#6B7280" fontSize={10} tickLine={false} axisLine={false} />
+                                                <Tooltip formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
+                                                <Bar dataKey="revenue" fill="#6B7280" radius={[6, 6, 0, 0]} barSize={32} />
+                                            </BarChart>
+                                        </ResponsiveContainer>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : period === null ? (
+                        <>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <div className="bg-white rounded-2xl shadow-sm border-2 border-primary p-6">
                                     <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
                                         <div className="text-center mb-4">
@@ -353,35 +413,15 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <BarChart data={rmBranchRevenueData} layout="vertical">
                                                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#E5E7EB" />
-                                                    <XAxis
-                                                        type="number"
-                                                        tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
-                                                        stroke="#6B7280"
-                                                        fontSize={11}
-                                                        tickLine={false}
-                                                        axisLine={false}
-                                                    />
-                                                    <YAxis
-                                                        dataKey="name"
-                                                        type="category"
-                                                        stroke="#6B7280"
-                                                        fontSize={11}
-                                                        tickLine={false}
-                                                        axisLine={false}
-                                                        width={80}
-                                                    />
-                                                    <Tooltip
-                                                        formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']}
-                                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                                    />
+                                                    <XAxis type="number" tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                                                    <YAxis dataKey="name" type="category" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} width={80} />
+                                                    <Tooltip formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                                                     <Bar dataKey="revenue" fill="#B08968" radius={[0, 6, 6, 0]} barSize={24} />
                                                 </BarChart>
                                             </ResponsiveContainer>
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Chart 2: Grafik Trend Keuntungan Per Bentuk */}
                                 <div className="bg-white rounded-2xl shadow-sm border-2 border-primary p-6">
                                     <div className="border-2 border-dashed border-gray-200 rounded-xl p-4">
                                         <div className="text-center mb-4">
@@ -392,27 +432,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                                             <ResponsiveContainer width="100%" height="100%">
                                                 <BarChart data={rmFormRevenueData} layout="vertical">
                                                     <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#E5E7EB" />
-                                                    <XAxis
-                                                        type="number"
-                                                        tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
-                                                        stroke="#6B7280"
-                                                        fontSize={11}
-                                                        tickLine={false}
-                                                        axisLine={false}
-                                                    />
-                                                    <YAxis
-                                                        dataKey="name"
-                                                        type="category"
-                                                        stroke="#6B7280"
-                                                        fontSize={11}
-                                                        tickLine={false}
-                                                        axisLine={false}
-                                                        width={90}
-                                                    />
-                                                    <Tooltip
-                                                        formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']}
-                                                        contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                                    />
+                                                    <XAxis type="number" tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                                                    <YAxis dataKey="name" type="category" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} width={90} />
+                                                    <Tooltip formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                                                     <Bar dataKey="revenue" fill="#7F5539" radius={[0, 6, 6, 0]} barSize={24} />
                                                 </BarChart>
                                             </ResponsiveContainer>
@@ -420,8 +442,6 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                                     </div>
                                 </div>
                             </div>
-
-                            {/* Bottom Row: Full Width Chart */}
                             <div className="bg-white rounded-2xl shadow-sm border-2 border-primary p-6">
                                 <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 md:p-6">
                                     <div className="text-center mb-6">
@@ -431,27 +451,9 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                                         <ResponsiveContainer width="100%" height="100%">
                                             <BarChart data={rmRegionRevenueData}>
                                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                                <XAxis
-                                                    dataKey="name"
-                                                    stroke="#6B7280"
-                                                    fontSize={11}
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                    angle={-20}
-                                                    textAnchor="end"
-                                                    height={60}
-                                                />
-                                                <YAxis
-                                                    tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
-                                                    stroke="#6B7280"
-                                                    fontSize={11}
-                                                    tickLine={false}
-                                                    axisLine={false}
-                                                />
-                                                <Tooltip
-                                                    formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']}
-                                                    contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                                />
+                                                <XAxis dataKey="name" stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} angle={-20} textAnchor="end" height={60} />
+                                                <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                                                <Tooltip formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                                                 <Bar dataKey="revenue" fill="#9C6644" radius={[6, 6, 0, 0]} barSize={48} />
                                             </BarChart>
                                         </ResponsiveContainer>
@@ -460,7 +462,6 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                             </div>
                         </>
                     ) : (
-                        /* Period selected: Show single chart based on selection */
                         <div className="bg-white rounded-2xl shadow-sm border-2 border-primary p-6">
                             <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 md:p-6">
                                 <div className="text-center mb-6">
@@ -470,30 +471,11 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                                 </div>
                                 <div className="h-[350px] w-full">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={
-                                            period === 'Mingguan' ? rmWeeklyRevenueData :
-                                                period === 'Bulanan' ? rmMonthlyRevenueData :
-                                                    rmYearlyRevenueData
-                                        }>
+                                        <BarChart data={period === 'Mingguan' ? rmWeeklyRevenueData : period === 'Bulanan' ? rmMonthlyRevenueData : rmYearlyRevenueData}>
                                             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                            <XAxis
-                                                dataKey="name"
-                                                stroke="#6B7280"
-                                                fontSize={12}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <YAxis
-                                                tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
-                                                stroke="#6B7280"
-                                                fontSize={11}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <Tooltip
-                                                formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']}
-                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                            />
+                                            <XAxis dataKey="name" stroke="#6B7280" fontSize={12} tickLine={false} axisLine={false} />
+                                            <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} stroke="#6B7280" fontSize={11} tickLine={false} axisLine={false} />
+                                            <Tooltip formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']} contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }} />
                                             <Bar dataKey="revenue" fill="#B08968" radius={[6, 6, 0, 0]} barSize={48} />
                                         </BarChart>
                                     </ResponsiveContainer>
@@ -520,11 +502,11 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
 
                         <ul className="space-y-4">
                             <li className="flex items-center gap-3 text-textPrimary font-semibold text-lg">
-                                <div className="w-2 h-2 rounded-full bg-[#B08968]"></div>
+                                <div className="w-2 h-2 rounded-full bg-secondary"></div>
                                 Puncak pemasukan tertinggi terjadi pada <span className="font-bold underline decoration-secondary decoration-2 ml-1">{peakData.name}</span>
                             </li>
                             <li className="flex items-center gap-3 text-textPrimary font-semibold text-lg">
-                                <div className="w-2 h-2 rounded-full bg-[#6B7280]"></div>
+                                <div className="w-2 h-2 rounded-full bg-textSecondary"></div>
                                 Pemasukan terendah tercatat pada <span className="font-bold underline decoration-gray-400 decoration-2 ml-1">{lowestData.name}</span>
                             </li>
                         </ul>
