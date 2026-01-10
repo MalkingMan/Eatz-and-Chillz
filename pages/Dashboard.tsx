@@ -200,21 +200,21 @@ export const Dashboard: React.FC<DashboardProps> = ({ user }) => {
   return (
     <div className="space-y-6">
       {/* Welcome Banner */}
-      <div className="bg-gradient-to-r from-[#1E1510] via-[#4A3222] to-[#8C5E35] rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#D4722A] via-[#E89250] to-[#F4A460] rounded-2xl p-8 text-white shadow-xl relative overflow-hidden">
         <div className="relative z-10">
-          <p className="text-[#DDB892] font-semibold text-sm uppercase tracking-wider mb-2">
+          <p className="text-[#5A2D0C] font-semibold text-sm uppercase tracking-wider mb-2">
             {isGM ? 'General Manager Dashboard' : 'Region Manager Dashboard'}
           </p>
-          <h1 className="text-3xl font-bold mb-2">
-            Welcome back, <span className="text-[#F5E6D3]">{user.name}</span>!
+          <h1 className="text-3xl font-bold mb-2 text-dark-gr ay">
+            Welcome back, <span className="text-[#010000]">{user.name}</span>
           </h1>
-          <p className="text-gray-200 text-lg">
+          <p className="text-black text-lg">
             Here's what's happening at Eatz and Chillz today.
           </p>
         </div>
         {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-72 h-72 bg-[#D4955A] opacity-20 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-        <div className="absolute bottom-0 right-32 w-48 h-48 bg-[#A8896A] opacity-20 rounded-full -mb-16 blur-2xl"></div>
+        <div className="absolute top-0 right-0 w-72 h-72 bg-[#FFCC80] opacity-25 rounded-full -mr-20 -mt-20 blur-3xl"></div>
+        <div className="absolute bottom-0 right-32 w-48 h-48 bg-[#FFE0B2] opacity-20 rounded-full -mb-16 blur-2xl"></div>
       </div>
 
       {/* Stats Cards */}

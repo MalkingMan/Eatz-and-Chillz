@@ -268,7 +268,15 @@ export const MenuManagement: React.FC = () => {
                         </select>
                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                     </div>
-                    {/* Other filters similar structure */}
+                    {/* Filter Cabang */}
+                    <div className="relative min-w-[160px]">
+                        <select value={filterBranch} onChange={(e) => setFilterBranch(e.target.value)} disabled={!filterRegion} className={`w-full appearance-none border border-gray-200 rounded-lg py-2 pl-4 pr-10 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-[#B08968] focus:border-transparent cursor-pointer transition-colors ${!filterRegion ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-gray-50 text-textSecondary hover:bg-gray-100'}`}>
+                            <option value="">Semua Cabang</option>
+                            {availableBranches.map(branch => <option key={branch} value={branch}>{branch}</option>)}
+                        </select>
+                        <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                    {/* Filter Kategori */}
                      <div className="relative min-w-[160px]">
                         <select value={filterCategory} onChange={(e) => setFilterCategory(e.target.value)} className="w-full appearance-none bg-gray-50 border border-gray-200 rounded-lg py-2 pl-4 pr-10 text-sm text-textSecondary font-medium focus:outline-none focus:ring-2 focus:ring-[#B08968] focus:border-transparent cursor-pointer hover:bg-gray-100 transition-colors">
                             <option value="">Semua Kategori</option>
