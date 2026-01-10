@@ -57,6 +57,30 @@ const rmWeeklyRevenueData = [
     { name: 'Sun', revenue: 12800000 },
 ];
 
+// Monthly Revenue Data for RM
+const rmMonthlyRevenueData = [
+    { name: 'Week 1', revenue: 42000000 },
+    { name: 'Week 2', revenue: 38500000 },
+    { name: 'Week 3', revenue: 45200000 },
+    { name: 'Week 4', revenue: 48800000 },
+];
+
+// Yearly Revenue Data for RM
+const rmYearlyRevenueData = [
+    { name: 'Jan', revenue: 145000000 },
+    { name: 'Feb', revenue: 132000000 },
+    { name: 'Mar', revenue: 168000000 },
+    { name: 'Apr', revenue: 155000000 },
+    { name: 'May', revenue: 178000000 },
+    { name: 'Jun', revenue: 162000000 },
+    { name: 'Jul', revenue: 185000000 },
+    { name: 'Aug', revenue: 192000000 },
+    { name: 'Sep', revenue: 175000000 },
+    { name: 'Oct', revenue: 188000000 },
+    { name: 'Nov', revenue: 195000000 },
+    { name: 'Dec', revenue: 210000000 },
+];
+
 interface AnalyticsProps {
     user: User;
 }
@@ -64,7 +88,8 @@ interface AnalyticsProps {
 export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
     const isGM = user.role === UserRole.GM;
     const [isComparison, setIsComparison] = useState(false);
-    const [period, setPeriod] = useState<'Mingguan' | 'Bulanan' | 'Tahunan'>('Mingguan');
+    // For GM, default to 'Mingguan'. For RM, default to null (no selection = show 3 charts)
+    const [period, setPeriod] = useState<'Mingguan' | 'Bulanan' | 'Tahunan' | null>(isGM ? 'Mingguan' : null);
 
     // Date Pickers State
     const [dateFrom, setDateFrom] = useState('');
@@ -85,7 +110,7 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
     };
 
     const chartLabels = useMemo(() => {
-        if (period === 'Mingguan') return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        if (period === 'Mingguan' || period === null) return ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         if (period === 'Bulanan') return ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
         return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     }, [period]);
@@ -189,7 +214,19 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                             <span className="font-bold text-textPrimary min-w-[80px]">Periode :</span>
                             <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
                                 {['Mingguan', 'Bulanan', 'Tahunan'].map((p) => (
-                                    <button key={p} onClick={() => setPeriod(p as any)} className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${period === p ? 'bg-primary text-white shadow-md' : 'text-textSecondary hover:bg-gray-200'}`}>
+                                    <button
+                                        key={p}
+                                        onClick={() => {
+                                            // For RM: toggle behavior (click same to deselect)
+                                            // For GM: always select
+                                            if (!isGM && period === p) {
+                                                setPeriod(null);
+                                            } else {
+                                                setPeriod(p as any);
+                                            }
+                                        }}
+                                        className={`px-6 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${period === p ? 'bg-primary text-white shadow-md' : 'text-textSecondary hover:bg-gray-200'}`}
+                                    >
                                         {p}
                                     </button>
                                 ))}
@@ -298,45 +335,10 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                     </div>
                 </div>
             ) : (
-                /* RM Layout - Different based on period */
+                /* RM Layout - Different based on period selection */
                 <div className="space-y-6">
-                    {period === 'Mingguan' ? (
-                        /* Weekly: Single Chart - Grafik Trend Keuntungan per Minggu */
-                        <div className="bg-white rounded-2xl shadow-sm border-2 border-primary p-6">
-                            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 md:p-6">
-                                <div className="text-center mb-6">
-                                    <h3 className="text-xl font-bold text-textPrimary">Grafik Trend Keuntungan per Minggu (Bar Chart)</h3>
-                                </div>
-                                <div className="h-[350px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={rmWeeklyRevenueData}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
-                                            <XAxis
-                                                dataKey="name"
-                                                stroke="#6B7280"
-                                                fontSize={12}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <YAxis
-                                                tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
-                                                stroke="#6B7280"
-                                                fontSize={11}
-                                                tickLine={false}
-                                                axisLine={false}
-                                            />
-                                            <Tooltip
-                                                formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']}
-                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                            />
-                                            <Bar dataKey="revenue" fill="#B08968" radius={[6, 6, 0, 0]} barSize={48} />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        /* Bulanan/Tahunan: 3 Charts - 2 on top, 1 on bottom */
+                    {period === null ? (
+                        /* No period selected: Show 3 Charts - 2 on top, 1 on bottom */
                         <>
                             {/* Top Row: 2 Charts Side by Side */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -457,6 +459,47 @@ export const Analytics: React.FC<AnalyticsProps> = ({ user }) => {
                                 </div>
                             </div>
                         </>
+                    ) : (
+                        /* Period selected: Show single chart based on selection */
+                        <div className="bg-white rounded-2xl shadow-sm border-2 border-primary p-6">
+                            <div className="border-2 border-dashed border-gray-200 rounded-xl p-4 md:p-6">
+                                <div className="text-center mb-6">
+                                    <h3 className="text-xl font-bold text-textPrimary">
+                                        Grafik Trend Keuntungan per {period === 'Mingguan' ? 'Minggu' : period === 'Bulanan' ? 'Bulan' : 'Tahun'} (Bar Chart)
+                                    </h3>
+                                </div>
+                                <div className="h-[350px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={
+                                            period === 'Mingguan' ? rmWeeklyRevenueData :
+                                                period === 'Bulanan' ? rmMonthlyRevenueData :
+                                                    rmYearlyRevenueData
+                                        }>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
+                                            <XAxis
+                                                dataKey="name"
+                                                stroke="#6B7280"
+                                                fontSize={12}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+                                            <YAxis
+                                                tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`}
+                                                stroke="#6B7280"
+                                                fontSize={11}
+                                                tickLine={false}
+                                                axisLine={false}
+                                            />
+                                            <Tooltip
+                                                formatter={(value: number) => [`Rp ${value.toLocaleString('id-ID')}`, 'Revenue']}
+                                                contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                            />
+                                            <Bar dataKey="revenue" fill="#B08968" radius={[6, 6, 0, 0]} barSize={48} />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </div>
+                        </div>
                     )}
                 </div>
             )}
